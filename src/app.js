@@ -8,14 +8,14 @@ import { analyze, render as renderLink, forAddress } from './link.js';
 
 const LINK = {};   // chain → analysis
 async function linkability() {
-  for (const chain of [8453, 1]) {
+  await Promise.all([8453, 1].map(async (chain) => {
     const el = $('link-' + chain);
     el.innerHTML = `<p class="note">Reading ${CHAINS[chain].name} pool logs…</p>`;
     try {
       LINK[chain] = await analyze(chain, (p) => { el.innerHTML = `<p class="note">Reading ${CHAINS[chain].name} pool logs… ${Math.round(p * 100)}%</p>`; });
       el.innerHTML = `<h3>${CHAINS[chain].name} ETH pool</h3>` + renderLink(LINK[chain]);
     } catch (e) { el.innerHTML = `<p class="err">Couldn't read ${CHAINS[chain].name} pool logs (${esc(e.message || e)}). Public RPCs cap log queries; reload to retry.</p>`; }
-  }
+  }));
 }
 
 const $ = (id) => document.getElementById(id);
@@ -33,7 +33,7 @@ async function nameOf(addr) {
 }
 async function addrLink(addr, chain = 1) {
   const n = await nameOf(addr);
-  return link(CHAINS[chain].addr + addr, n ? `${n}` : short(addr, 6, 4), n ? 'xns' : '');
+  return `<a href="${esc(CHAINS[chain].addr + addr)}" target="_blank" rel="noopener noreferrer" title="${esc(addr)}"${n ? ' class="xns"' : ''}>${esc(n || short(addr, 6, 4))}</a><button type="button" class="lk" data-q="${esc(addr)}" title="Look up what's public about ${esc(addr)}">⌕</button>`;
 }
 
 // ── pulse: the four heights that say whether the two chains are in step ───────────────────────────────────────
@@ -77,10 +77,11 @@ function map() {
   </div>
   <div class="lane evm">
     <h3>Ethereum · Base · Robinhood <small>confidential pools</small></h3>
-    <p>The same notes live as commitments in an immutable pool; a second ETH-only pool runs on four chains.</p>
+    <p>The same notes live as commitments in an immutable pool; a second ETH-only pool runs at the same address on Ethereum, Base and Robinhood Chain.</p>
     ${row('V1 pool notes', num(c?.notes), src('chain', 'pool.nextLeafIndex()'))}
     ${row('EVM pool notes, all chains', S.evm ? num(S.evm.filter((p) => p.ok).reduce((s, p) => s + p.notes, 0)) : '—', src('chain', 'TacitEvmPool.nextIndex() on each chain'))}
-    ${row('Settles in 24h', f?.settles != null ? num(f.settles) : '—', src('api', '/flow'))}
+    ${row('Settles in 24h', Array.isArray(S.flow?.events?.settles) ? num(S.flow.events.settles.length) : '—', src('api', '/flow events'))}
+    ${row('Attestations in 24h', Array.isArray(S.flow?.events?.attests) ? num(S.flow.events.attests.length) : '—', src('api', '/flow events'))}
   </div>`;
 }
 
@@ -89,11 +90,11 @@ async function evmSide() {
   const c = S.core, st = S.stats;
   if (!c) return fail('evm', 'the Ethereum pool', 'RPC unavailable');
   const link_ = st?.link;
-  const check = (chainV, apiV) => (apiV == null ? src('chain') : Number(chainV) === Number(apiV) ? src('match', `indexer says ${apiV}`) : src('differ', `indexer says ${apiV} — it reads on a ~1 min cache`));
+  const check = (chainV, apiV) => (apiV == null ? src('chain') : Number(chainV) === Number(apiV) ? src('match', `indexer says ${apiV}`) : Number(chainV) > Number(apiV) ? `${src('chain')} <span class="src" title="The indexer reads on a ~1 minute cache">indexer ${int(apiV)}, a little behind</span>` : src('differ', `indexer says ${apiV}`));
   const btc = st?.btc, tac = st?.tac;
   $('evm-v1').innerHTML = `
     ${row('Notes ever created', int(c.notes), check(c.notes, link_?.notes), 'every output is a new leaf')}
-    ${row('Notes spent (nullifiers)', link_?.spent != null ? int(link_.spent) : '—', src('api', 'NullifiersSpent events'), 'which notes, nobody can tell')}
+    ${row('Notes spent (nullifiers)', link_?.spent != null ? int(link_.spent) : '—', src('api', 'NullifiersSpent events'), 'can exceed notes created: notes born on Bitcoin and bridged over are spent here too')}
     ${row('Settles', link_?.settles != null ? int(link_.settles) : '—', src('api'), 'transactions that moved notes')}
     ${row('Current note root', `<code title="${esc(c.noteRoot)}">${short(c.noteRoot, 10, 6)}</code>`, src('chain', 'pool.currentRoot()'))}
     ${row('ETH held by the pool', eth(c.poolEth), src('chain', 'eth_getBalance(pool)'), 'the total is public, who owns it is not')}
@@ -146,7 +147,7 @@ function describe(r) {
   return esc(r.type);
 }
 function visible(r) {
-  if (r.type === 'wrap') { const a = ASSETS[String(r.assetId).toLowerCase()]; return [`amount <b>${a ? units(BigInt(r.amount) * 10n ** 10n, 18, 6) : int(r.amount)} ${a ? a.sym : ''}</b> (entry is public)`]; }
+  if (r.type === 'wrap') { const a = ASSETS[String(r.assetId).toLowerCase()]; return [`amount <b>${a ? units(BigInt(r.amount), 18, 6) : int(r.amount)} ${a ? a.sym : ''}</b> (entry is public)`]; }
   if (r.type === 'leaves') return ['count, time, fee payer'];
   if (r.type === 'nullifiers') return ['count, time'];
   if (r.type === 'crossOut') return ['destination chain, time'];
@@ -225,7 +226,8 @@ async function bridge() {
     ${row('…of which minted on Ethereum', st?.bridgeMinted != null ? int(st.bridgeMinted) : '—', src('api'))}
     ${row('Burn deposits awaiting proof bundle', st?.burnsAwaitingBundle != null ? `${int(st.burnsAwaitingBundle)}${st.oldestAwaitingHeight ? ` · oldest at ${int(st.oldestAwaitingHeight)}` : ''}` : '—', src('api'))}
     ${row('Burn deposits tracked', st?.burnDeposits != null ? int(st.burnDeposits) : '—', src('api'))}
-    ${row('Ethereum → Bitcoin: cross-outs attested', c ? int(c.crossOuts) : '—', st?.foldedCrossoutCount != null ? (Number(st.foldedCrossoutCount) === c?.crossOuts ? src('match') : src('differ', `indexer folded ${st.foldedCrossoutCount}`)) : src('chain'))}
+    ${row('Ethereum → Bitcoin: cross-outs recorded', c ? int(c.crossOuts) : '—', src('chain', 'pool.attestedCrossOutCount()'))}
+    ${row('…folded into the Bitcoin-side reflection', st?.foldedCrossoutCount != null ? int(st.foldedCrossoutCount) : '—', src('api', '/reflection/status foldedCrossoutCount: re-minted or awaiting re-mint on Bitcoin'))}
     ${row('Bitcoin notes consumed by Ethereum', c ? int(c.consumed) : '—', st?.consumedCount != null ? (Number(st.consumedCount) === c?.consumed ? src('match') : src('differ', `indexer: ${st.consumedCount}`)) : src('chain'))}
     ${pending ? row('Burns with a registered proof bundle', int(pending.length), src('api', '/reflection/burndep-list')) : ''}`;
 }
@@ -289,7 +291,8 @@ async function lookup(q) {
           const mine = forAddress(Object.values(LINK), addr);
           if (!Object.keys(LINK).length) return row('Pool withdrawals to it', 'the linkability check is still reading');
           if (!mine.length) return row('Pool withdrawals to it', `none in the windows read (${Object.values(LINK).map((r) => `${CHAINS[r.chain].name}: ${r.chain === 1 ? 'since launch' : 'last 6h'}`).join(', ')})`, src('chain'));
-          return mine.map((m) => row(`Withdrawal on ${CHAINS[m.chain].name}`, `${link(CHAINS[m.chain].tx + m.e.tx, short(m.e.tx, 6, 4))} · ${eth(m.out, 6)} ETH · ${m.cands.length === 1 ? '<b class="err">one earlier deposit has this exact amount</b>' : `${int(m.cands.length)} earlier deposits share this amount`}`, src('chain'))).join('');
+          const shown = mine.slice(-8).reverse(), uniq = mine.filter((m) => m.cands.length === 1).length;
+          return row('Pool withdrawals to it', `${int(mine.length)} in the windows read · ${int(uniq)} matching exactly one deposit by amount`, src('chain')) + shown.map((m) => row(`Withdrawal on ${CHAINS[m.chain].name}`, `${link(CHAINS[m.chain].tx + m.e.tx, short(m.e.tx, 6, 4))} · ${eth(m.out, 6)} ETH · ${m.cands.length === 1 ? '<b class="err">one earlier deposit has this exact amount</b>' : `${int(m.cands.length)} earlier deposits share this amount`}`, src('chain'))).join('') + (mine.length > shown.length ? row('', `latest ${shown.length} shown`) : '');
         })()}
         <p class="pvbox"><b>What's public:</b> this address's balances, every transaction it sent, and any wrap into or exit from a Tacit pool it made, amount included. <b>What isn't:</b> any confidential note it holds or has held. Nothing on chain links an address to notes inside the pool. The link only appears if the same amount goes in and comes out close together.</p></div>`;
     }
@@ -297,25 +300,37 @@ async function lookup(q) {
 }
 
 // ── run ─────────────────────────────────────────────────────────────────────────────────────────────────────
+// Every source is asked at once and each section draws as soon as what it needs is in, so a slow endpoint holds up
+// only its own panel.
 async function round() {
-  const [stats, flow, evm] = await Promise.allSettled([api('/stats?view=front', { ttl: 55000 }), api('/flow', { ttl: 55000 }), readEvmPools()]);
-  if (stats.status === 'fulfilled') S.stats = stats.value;
-  if (flow.status === 'fulfilled') S.flow = flow.value;
-  if (evm.status === 'fulfilled') S.evm = evm.value;
-  await pulse();
-  map();
-  await Promise.allSettled([
-    evmSide(), bridge(),
-    renderBitcoin(S).then(() => { map(); privacy(); }),
-  ]);
-  privacy();
+  const redraw = () => { try { map(); privacy(); } catch { /* drawn on the next one */ } };
+  const statsP = api('/stats?view=front', { ttl: 55000 }).then((v) => { S.stats = v; }).catch(() => {});
+  const flowP = api('/flow', { ttl: 55000 }).then((v) => { S.flow = v; }).catch(() => {});
+  const evmP = readEvmPools().then((v) => { S.evm = v; }).catch(() => {});
+  const pulseP = pulse().catch((e) => fail('pulse', 'chain heights', e));
+  const btcP = renderBitcoin(S).catch(() => {});
   evmFeed();
   baseFeed();
+  [statsP, flowP, evmP, pulseP, btcP].forEach((p) => p.then(redraw));
+  await Promise.allSettled([pulseP, statsP]);
+  bridge().catch((e) => fail('bridge-relay', 'the bridge', e));
+  await evmP;
+  await evmSide().catch((e) => fail('evm-v1', 'the Ethereum pool', e));
+  await Promise.allSettled([flowP, btcP]);
+  redraw();
 }
 
+document.addEventListener('click', (e) => { const b = e.target.closest('.lk'); if (!b) return; $('q').value = b.dataset.q; $('lookup-form').requestSubmit(); $('look').scrollIntoView({ behavior: 'smooth' }); });
 $('lookup-form').addEventListener('submit', (e) => { e.preventDefault(); const q = $('q').value; history.replaceState(null, '', '#q=' + encodeURIComponent(q)); lookup(q); });
 document.querySelectorAll('[data-try]').forEach((b) => b.addEventListener('click', () => { $('q').value = b.dataset.try; $('lookup-form').requestSubmit(); }));
 const m = location.hash.match(/^#q=(.+)$/);
 if (m) { $('q').value = decodeURIComponent(m[1]); lookup($('q').value); }
-round().finally(() => linkability());
+// On phones the tables stack; each cell keeps its column name as a label.
+const label = () => document.querySelectorAll('table').forEach((t) => {
+  const h = [...t.querySelectorAll('thead th')].map((th) => th.textContent.replace(/\s+(chain|indexer)$/, '').trim());
+  if (h.length) t.querySelectorAll('tbody tr').forEach((tr) => [...tr.children].forEach((td, i) => { if (!td.dataset.label && h[i]) td.dataset.label = h[i]; }));
+});
+new MutationObserver(label).observe(document.body, { childList: true, subtree: true });
+round();
+linkability();
 setInterval(round, 60000);

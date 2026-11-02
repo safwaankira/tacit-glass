@@ -44,8 +44,8 @@ export const SEL = {
 };
 
 export const CHAINS = {
-  1: { name: 'Ethereum', short: 'ETH', rpc: ['https://ethereum-rpc.publicnode.com', 'https://eth.drpc.org', 'https://mainnet.gateway.tenderly.co'], tx: 'https://etherscan.io/tx/', addr: 'https://etherscan.io/address/' },
-  8453: { name: 'Base', short: 'BASE', rpc: ['https://base-rpc.publicnode.com', 'https://mainnet.base.org', 'https://base.gateway.tenderly.co'], tx: 'https://basescan.org/tx/', addr: 'https://basescan.org/address/' },
+  1: { name: 'Ethereum', short: 'ETH', rpc: ['https://mainnet.gateway.tenderly.co', 'https://ethereum-rpc.publicnode.com', 'https://1rpc.io/eth', 'https://eth.drpc.org'], tx: 'https://etherscan.io/tx/', addr: 'https://etherscan.io/address/' },
+  8453: { name: 'Base', short: 'BASE', rpc: ['https://mainnet.base.org', 'https://base.gateway.tenderly.co', 'https://base-rpc.publicnode.com'], tx: 'https://basescan.org/tx/', addr: 'https://basescan.org/address/' },
   4663: { name: 'Robinhood Chain', short: 'RH', rpc: ['https://rpc.mainnet.chain.robinhood.com'], tx: 'https://explorer.chain.robinhood.com/tx/', addr: 'https://explorer.chain.robinhood.com/address/' },
 };
 
@@ -54,25 +54,29 @@ export const word = (h) => strip(h).padStart(64, '0');
 export const big = (h) => (h && h !== '0x' ? BigInt(h) : 0n);
 
 let rpcId = 1;
+// An endpoint that refuses (403, 429, a capped batch) drops to the back of its chain's list, so the page stops asking it first.
+const demote = (chain, url) => { const l = CHAINS[chain].rpc; const i = l.indexOf(url); if (i >= 0 && l.length > 1) { l.splice(i, 1); l.push(url); } };
 export async function rpc(chain, method, params) {
   let last;
-  for (const url of CHAINS[chain].rpc) {
+  for (const url of [...CHAINS[chain].rpc]) {
     try {
-      const r = await fetch(url, { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ jsonrpc: '2.0', id: rpcId++, method, params }), signal: AbortSignal.timeout(12000) });
+      const r = await fetch(url, { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ jsonrpc: '2.0', id: rpcId++, method, params }), signal: AbortSignal.timeout(method === 'eth_getLogs' ? 20000 : 8000) });
+      if (!r.ok) throw new Error(`${r.status} from ${new URL(url).host}`);
       const j = await r.json();
-      if (j.error) throw new Error(j.error.message || 'rpc error');
+      if (j.error) { if (method === 'eth_getLogs') throw Object.assign(new Error(j.error.message || 'rpc error'), { range: true }); throw new Error(j.error.message || 'rpc error'); }
       return j.result;
-    } catch (e) { last = e; }
+    } catch (e) { last = e; if (e.range) throw e; demote(chain, url); }
   }
   throw last || new Error('no rpc');
 }
 
 // Several eth_calls at one block in one JSON-RPC batch; falls back to one call at a time on endpoints that refuse batches.
 export async function calls(chain, list, block = 'latest') {
-  for (const url of CHAINS[chain].rpc) {
+  for (const url of [...CHAINS[chain].rpc]) {
     try {
       const body = list.map(([to, data], i) => ({ jsonrpc: '2.0', id: i, method: 'eth_call', params: [{ to, data }, block] }));
-      const r = await fetch(url, { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify(body), signal: AbortSignal.timeout(15000) });
+      const r = await fetch(url, { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify(body), signal: AbortSignal.timeout(10000) });
+      if (!r.ok) { demote(chain, url); throw new Error(String(r.status)); }
       const j = await r.json();
       if (!Array.isArray(j)) throw new Error('no batch');
       const by = new Map(j.map((x) => [x.id, x]));

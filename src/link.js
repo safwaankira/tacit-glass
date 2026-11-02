@@ -72,7 +72,7 @@ export function render(r, times) {
   const examples = r.unique.slice(-4).reverse().map((u) => {
     const d = u.cands[0];
     return `<tr><td>${link(ch.tx + d.tx, short(d.tx, 6, 4))}<br><small>#${int(d.block)}</small></td><td class="num">${eth(d.x, 6)} ETH</td>
-      <td>${link(ch.tx + u.e.tx, short(u.e.tx, 6, 4))}<br><small>#${int(u.e.block)} · ${int(u.e.block - d.block)} blocks later</small></td><td>${link(ch.addr + u.e.to, short(u.e.to, 6, 4))}</td></tr>`;
+      <td>${link(ch.tx + u.e.tx, short(u.e.tx, 6, 4))}<br><small>#${int(u.e.block)} · ${int(u.e.block - d.block)} blocks later</small></td><td>${link(ch.addr + u.e.to, short(u.e.to, 6, 4))}<button type="button" class="lk" data-q="${u.e.to}" title="Look up this address">⌕</button></td></tr>`;
   }).join('');
   return `
     <div class="row"><span class="k">Window</span><span class="v">${ch.name}, ${WINDOWS[r.chain].label} (blocks ${int(r.from)}–${int(r.head)})</span></div>
