@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Tacit Glass — one page, both chains</title>
+<meta name="description" content="A live explorer for Tacit: Bitcoin envelopes, the confidential pools on Ethereum, Base and Robinhood Chain, the SP1 bridge between them, and an honest line between what's public and what's hidden.">
+<meta property="og:title" content="Tacit Glass">
+<meta property="og:description" content="Bitcoin envelopes, confidential pools and the bridge between them, on one page. Real mainnet data, read in your browser.">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Ccircle cx='32' cy='32' r='32' fill='%23171717'/%3E%3Ccircle cx='32' cy='32' r='14' fill='none' stroke='%23ff9818' stroke-width='6'/%3E%3C/svg%3E">
+<style>
+  /* Tokens forked from Tacit's own docs/dapp-template (MIT), so the page reads as part of the family. */
+  :root {
+    --paper:#f4eee3; --card:#fffaf2; --field:#faf5eb; --ink:#171717; --muted:#7a7469; --line:#ddd5c8;
+    --orange:#ff9818; --btc:#c96f00; --evm:#5b5bd6; --green:#3b7a5e; --red:#b8341d;
+    --mono: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; --r:10px;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) { --paper:#100f0d; --card:#181613; --field:#1e1b17; --ink:#ece6da; --muted:#8f887c; --line:#2e2a24; --btc:#ffad4d; --evm:#9a9aff; --green:#5fae8a; --red:#e07a63; }
+  }
+  :root[data-theme="dark"] { --paper:#100f0d; --card:#181613; --field:#1e1b17; --ink:#ece6da; --muted:#8f887c; --line:#2e2a24; --btc:#ffad4d; --evm:#9a9aff; --green:#5fae8a; --red:#e07a63; }
+  * { box-sizing:border-box; }
+  html,body { margin:0; }
+  body { background:var(--paper); color:var(--ink); font:13px/1.6 var(--mono); padding:0 16px 80px; }
+  a { color:inherit; text-decoration-color:var(--orange); text-underline-offset:2px; }
+  a.xns { color:var(--evm); font-weight:600; }
+  .wrap { max-width:1120px; margin:0 auto; }
+  header { padding:26px 0 16px; border-bottom:1px dashed var(--line); display:flex; flex-wrap:wrap; gap:8px 18px; align-items:baseline; justify-content:space-between; }
+  header h1 { font-size:20px; margin:0; letter-spacing:-.01em; }
+  header h1 span { color:var(--orange); }
+  .tag { color:var(--muted); font-size:12px; max-width:62ch; }
+  #asof { color:var(--muted); font-size:11px; }
+  nav { display:flex; flex-wrap:wrap; gap:6px; padding:12px 0; border-bottom:1px dashed var(--line); position:sticky; top:0; background:var(--paper); z-index:5; }
+  nav a { font-size:11px; padding:2px 9px; border:1px solid var(--line); border-radius:999px; text-decoration:none; background:var(--card); }
+  section { margin-top:28px; scroll-margin-top:56px; }
+  h2 { font-size:11px; text-transform:uppercase; letter-spacing:.12em; color:var(--muted); margin:0 0 10px; font-weight:600; }
+  h2 b { color:var(--ink); font-size:15px; letter-spacing:0; text-transform:none; margin-right:8px; }
+  h3 { font-size:13px; margin:0 0 6px; }
+  h3 small, td small, .k small { color:var(--muted); font-weight:400; margin-left:6px; }
+  .k small { display:block; margin:0; font-size:11px; }
+  .card { background:var(--card); border:1px solid var(--line); border-radius:var(--r); padding:14px 16px; }
+  .grid2 { display:grid; grid-template-columns:1fr 1fr; gap:14px; }
+  @media (max-width:820px){ .grid2 { grid-template-columns:1fr; } }
+  .row { display:flex; justify-content:space-between; gap:12px; padding:6px 0; border-bottom:1px dashed var(--line); }
+  .row:last-child { border-bottom:0; }
+  .row .k { color:var(--muted); }
+  .row .v { text-align:right; word-break:break-word; }
+  .num { font-variant-numeric:tabular-nums; }
+  code { font-size:11.5px; background:var(--field); padding:1px 5px; border-radius:4px; }
+  table { width:100%; border-collapse:collapse; }
+  th,td { text-align:left; padding:7px 8px 7px 0; border-bottom:1px dashed var(--line); vertical-align:top; }
+  th { color:var(--muted); font-weight:600; font-size:10.5px; text-transform:uppercase; letter-spacing:.08em; }
+  .tablewrap { overflow-x:auto; }
+  .feed td { font-size:12px; }
+  .note { color:var(--muted); font-size:11.5px; margin:10px 0 0; }
+  .err { color:var(--red); font-size:12px; }
+  .src { display:inline-block; font-size:9.5px; padding:0 5px; border-radius:3px; border:1px solid var(--line); color:var(--muted); vertical-align:1px; white-space:nowrap; }
+  .src-chain { border-color:var(--green); color:var(--green); }
+  .src-match { border-color:var(--green); color:var(--paper); background:var(--green); }
+  .src-differ { border-color:var(--red); color:var(--red); }
+  .src-btc { border-color:var(--btc); color:var(--btc); }
+  .hid { display:inline-block; font-size:10.5px; padding:0 6px; border-radius:3px; background:var(--ink); color:var(--paper); letter-spacing:.04em; }
+  .hid::before { content:'● '; color:var(--orange); }
+  /* pulse */
+  #pulse { display:grid; grid-template-columns:repeat(4,1fr); gap:10px; margin-top:16px; }
+  @media (max-width:820px){ #pulse { grid-template-columns:1fr 1fr; } }
+  .cell { background:var(--card); border:1px solid var(--line); border-radius:var(--r); padding:10px 12px; display:flex; flex-direction:column; }
+  .cell .lbl { font-size:10.5px; text-transform:uppercase; letter-spacing:.08em; color:var(--muted); }
+  .cell b { font-size:20px; margin:2px 0; }
+  .cell .sub { font-size:11px; color:var(--muted); }
+  .cell.ok { border-color:var(--green); } .cell.warn { border-color:var(--orange); }
+  /* map */
+  #map { display:grid; grid-template-columns:1fr 1.15fr 1fr; gap:0; border:1px solid var(--line); border-radius:var(--r); overflow:hidden; }
+  @media (max-width:820px){ #map { grid-template-columns:1fr; } }
+  .lane { padding:14px 16px; background:var(--card); }
+  .lane p { color:var(--muted); font-size:12px; margin:0 0 8px; }
+  .lane.btc { border-top:4px solid var(--btc); }
+  .lane.evm { border-top:4px solid var(--evm); }
+  .lane.bridge { border-top:4px solid var(--orange); background:var(--field); border-left:1px dashed var(--line); border-right:1px dashed var(--line); }
+  .arrow { font-size:11px; color:var(--orange); margin:6px 0 2px; }
+  .big .row b { font-size:15px; }
+  /* privacy */
+  .pv td:first-child { font-weight:600; width:18%; }
+  .pv td:nth-child(3) { background:color-mix(in srgb, var(--ink) 4%, transparent); }
+  .pvbox { margin:12px 0 0; padding:10px 12px; border-left:3px solid var(--orange); background:var(--field); font-size:12px; }
+  /* lookup */
+  form { display:flex; gap:8px; }
+  input { flex:1; min-width:0; font:inherit; padding:10px 12px; border:1px solid var(--line); border-radius:var(--r); background:var(--field); color:var(--ink); }
+  button { font:inherit; padding:10px 16px; border:0; border-radius:var(--r); background:var(--ink); color:var(--paper); cursor:pointer; }
+  .tries { margin-top:8px; display:flex; flex-wrap:wrap; gap:6px; }
+  .tries button { padding:2px 9px; font-size:11px; background:var(--card); color:var(--ink); border:1px solid var(--line); border-radius:999px; }
+  #lookup-out { margin-top:12px; }
+  footer { margin-top:40px; padding-top:16px; border-top:1px dashed var(--line); color:var(--muted); font-size:11.5px; }
+  footer p { margin:6px 0; }
+  .kind { display:inline-block; min-width:64px; font-size:10.5px; padding:0 6px; border-radius:3px; border:1px solid var(--btc); color:var(--btc); text-align:center; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <div>
+      <h1>tacit <span>glass</span></h1>
+      <div class="tag">Everything happening on Tacit, on one page: Bitcoin envelopes, the confidential pools on Ethereum, Base and Robinhood Chain, and the proofs that carry notes between them. Real mainnet data, read by your browser.</div>
+    </div>
+    <div id="asof"></div>
+  </header>
+  <nav>
+    <a href="#overview">Overview</a><a href="#bitcoin">Bitcoin</a><a href="#ethereum">Ethereum · Base</a><a href="#bridge">Bridge</a><a href="#privacy-h">Privacy boundary</a><a href="#look">Look up</a><a href="#how">How it's read</a>
+  </nav>
+
+  <section id="overview">
+    <div id="pulse"><div class="cell"><span class="lbl">Loading</span><b>…</b></div></div>
+    <h2 style="margin-top:22px"><b>One note, two chains</b>how value moves across Tacit</h2>
+    <div id="map"></div>
+  </section>
+
+  <section id="bitcoin">
+    <h2><b>Bitcoin side</b>envelopes in Taproot transactions</h2>
+    <div class="grid2">
+      <div class="card"><h3>Recent envelopes</h3><div class="tablewrap" id="btc-feed">Reading…</div></div>
+      <div>
+        <div class="card"><h3>Bitcoin-native AMM pool <small>tETH / TAC</small></h3><div id="btc-amm">Reading…</div></div>
+        <div class="card" style="margin-top:14px"><h3>Assets</h3><div class="tablewrap" id="btc-assets">Reading…</div></div>
+      </div>
+    </div>
+  </section>
+
+  <section id="ethereum">
+    <h2><b>Ethereum · Base · Robinhood</b>the confidential pools</h2>
+    <div class="grid2">
+      <div class="card"><h3>V1 ConfidentialPool <small>Ethereum</small></h3><div id="evm-v1">Reading…</div></div>
+      <div class="card"><h3>cBTC · cUSD · TAC · wTAC</h3><div class="tablewrap" id="evm-assets">Reading…</div></div>
+    </div>
+    <div class="card" style="margin-top:14px"><h3>ETH pool on every chain <small>TacitEvmPool, same address everywhere</small></h3><div class="tablewrap" id="evm-pools">Reading…</div></div>
+    <div class="card" style="margin-top:14px"><h3>Latest V1 pool activity <small>each row: what it revealed, what it didn't</small></h3><div class="tablewrap" id="evm-feed">Reading…</div></div>
+    <div class="card" style="margin-top:14px"><h3>Latest Base pool activity</h3><div class="tablewrap" id="base-feed">Reading…</div></div>
+  </section>
+
+  <section id="bridge">
+    <h2><b>The bridge</b>header relay, proven roots, burns and mints in flight</h2>
+    <div class="grid2">
+      <div class="card"><h3>What Ethereum knows about Bitcoin</h3><div id="bridge-relay">Reading…</div></div>
+      <div class="card"><h3>Notes crossing</h3><div id="bridge-flow">Reading…</div></div>
+    </div>
+  </section>
+
+  <section id="privacy-h">
+    <h2><b>The privacy boundary</b>what an observer sees, and what stays hidden</h2>
+    <div class="card tablewrap" id="privacy">Reading…</div>
+    <h2 style="margin-top:18px"><b>Linkability check</b>how many exits give themselves away by amount, measured live</h2>
+    <div class="grid2">
+      <div class="card tablewrap" id="link-8453">Waiting for the page to load…</div>
+      <div class="card tablewrap" id="link-1">Waiting for the page to load…</div>
+    </div>
+  </section>
+
+  <section id="look">
+    <h2><b>Look up your own footprint</b>tacit1 ID · Bitcoin txid · EVM address or tx · XNS name</h2>
+    <div class="card">
+      <form id="lookup-form"><input id="q" placeholder="tacit1…, a Bitcoin txid, 0x… or name@xns" autocomplete="off" spellcheck="false"><button>Look up</button></form>
+      <div class="tries">try:
+        <button type="button" data-try="tacit1qqps86ymc78aa5v4q03hjlz70hrmq3a2xa4g8zg9exreekzye4h6yw4eqdvy85q973gqj85aa84d25wpex67fpal72yznlej9q85eez9ax0jsqlgn0rclhk3j5p7x7tute7u0vz84gmk4qufqhyc08xcgnxklg36hyl7pvk0">a tacit1 ID</button>
+        <button type="button" data-try="e2d10be19c2b73b86e14be99dc237a3d999ba3dfbe6f3e3714590acee2ca481e">TAC genesis etch</button>
+        <button type="button" data-try="0x006CD14F36F65eCbB29b2519cCBe63A0DC8549F2">ops multisig</button>
+        <button type="button" data-try="0xc7bfc7cec938e59c5d256d1c44c2aea5269eb7c237ac018878f21b2a93c29a8f">a pool cross-out</button>
+      </div>
+      <div id="lookup-out"></div>
+    </div>
+  </section>
+
+  <footer id="how">
+    <p><b>How every number is read.</b> Tags beside a figure say where it came from. <span class="src src-chain">chain</span> your browser asked a public Ethereum, Base or Robinhood node directly. <span class="src src-btc">bitcoin</span> mempool.space / blockstream. <span class="src">indexer</span> Tacit's public API (api.tacit.finance). <span class="src src-match">chain ✓ indexer</span> both were read and agree. <span class="src src-differ">chain ≠ indexer</span> they disagree, usually because the indexer caches for a minute; the chain figure is the one to trust.</p>
+    <p>No wallet, no sign-in, no keys, nothing written to any chain. Refreshes every minute. Contract addresses from Tacit's <a href="https://github.com/src-company/tacit/blob/main/docs/DEPLOYMENTS.md" target="_blank" rel="noopener">DEPLOYMENTS.md</a>. Built on Tacit's MIT-licensed dapp template, stats reader and address kit.</p>
+    <p><a href="https://github.com/safwaankira/tacit-glass" target="_blank" rel="noopener">source</a> · Bitcoin-side decoding cross-referenced with <a href="https://www.tacitscan.io" target="_blank" rel="noopener">tacitscan.io</a></p>
+  </footer>
+</div>
+<script type="module" src="src/app.js"></script>
+</body>
+</html>

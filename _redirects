@@ -1,0 +1,4 @@
+# Pass-through proxy for Tacit endpoints that don't send CORS headers to other origins.
+# Read-only GETs, forwarded unchanged. Netlify format.
+/tapi/*            https://api.tacit.finance/:splat        200
+/tscan/*           https://tacitscan.io/api/:splat         200

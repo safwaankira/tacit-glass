@@ -1,0 +1,9 @@
+{
+  "rewrites": [
+    { "source": "/tapi/:path*", "destination": "https://api.tacit.finance/:path*" },
+    { "source": "/tscan/:path*", "destination": "https://tacitscan.io/api/:path*" }
+  ],
+  "headers": [
+    { "source": "/(.*)", "headers": [ { "key": "X-Content-Type-Options", "value": "nosniff" }, { "key": "Referrer-Policy", "value": "no-referrer" } ] }
+  ]
+}
