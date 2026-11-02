@@ -175,11 +175,14 @@ const TRANSACT = '0xdf0ed29e998ac2f2ff0f0516cb9c1b95af189e00d55af3764b95bdd2a835
 const W = (data, i) => BigInt('0x' + (String(data).slice(2 + i * 64, 2 + i * 64 + 64) || '0'));
 const I256 = (w) => (w >> 255n ? w - (1n << 256n) : w);
 async function poolLogs(chain, span) {
-  const head = Number(BigInt(await rpc(chain, 'eth_blockNumber', [])));
+  // A few blocks behind the head, so an endpoint that is a block or two behind another still serves the range.
+  const head = Number(BigInt(await rpc(chain, 'eth_blockNumber', []))) - 3;
   const out = [];
-  for (let to = head, tries = 0; out.length < 12 && tries < 6; tries++) {
+  for (let to = head, tries = 0; out.length < 12 && tries < 10; tries++) {
     const from = Math.max(0, to - span + 1);
-    const logs = await rpc(chain, 'eth_getLogs', [{ address: A.evmPool, topics: [TRANSACT], fromBlock: '0x' + from.toString(16), toBlock: '0x' + to.toString(16) }]);
+    let logs;
+    try { logs = await rpc(chain, 'eth_getLogs', [{ address: A.evmPool, topics: [TRANSACT], fromBlock: '0x' + from.toString(16), toBlock: '0x' + to.toString(16) }]); }
+    catch (e) { if (e.range && span > 50) { span = Math.max(50, Math.floor(span / 4)); continue; } throw e; }
     out.unshift(...logs);
     to = from - 1;
   }

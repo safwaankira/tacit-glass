@@ -24,15 +24,16 @@ async function logs(chain, from, to, onProgress) {
       lo = hi + 1;
       onProgress?.((lo - from) / (to - from + 1));
     } catch (e) {
-      if (span <= 500) throw e;
-      span = Math.floor(span / 4);                               // the endpoint capped the range or the result size
+      if (!e.range && span <= 500) throw e;
+      if (span <= 50) throw e;
+      span = Math.max(50, Math.floor(span / 4));                               // the endpoint capped the range or the result size
     }
   }
   return out;
 }
 
 export async function analyze(chain, onProgress) {
-  const head = Number(BigInt(await rpc(chain, 'eth_blockNumber', [])));
+  const head = Number(BigInt(await rpc(chain, 'eth_blockNumber', []))) - 3;
   const w = WINDOWS[chain];
   const from = w.from ?? head - w.blocks;
   const raw = await logs(chain, from, head, onProgress);
@@ -80,6 +81,9 @@ export function render(r, times) {
     <div class="row"><span class="k">Withdrawals matching <b>exactly one</b> earlier deposit by amount</span><span class="v num"><b>${int(r.unique.length)}</b> (${pct(r.unique.length)})</span></div>
     <div class="row"><span class="k">Withdrawals matching no deposit amount</span><span class="v num">${int(r.none.length)} (${pct(r.none.length)}) <small>split, merged or paid privately first</small></span></div>
     <div class="row"><span class="k">Median same-amount crowd per withdrawal</span><span class="v num">${r.median ?? '—'}</span></div>
+    ${(() => { const top = [...r.recips.entries()].sort((a, b) => b[1] - a[1]).slice(0, 3); const n = top.reduce((t, x) => t + x[1], 0);
+      return top.length ? `<div class="row"><span class="k">Where withdrawals went<small>a crowd of one recipient hides nobody</small></span><span class="v num">${int(r.recips.size)} distinct addresses · top ${top.length} took <b>${pct(n)}</b><br>${top.map(([a, c]) => `${link(ch.addr + a, short(a, 6, 4))}<button type="button" class="lk" data-q="${a}" title="Look up this address">⌕</button> ×${int(c)}`).join(' · ')}</span></div>` : ''; })()}
+    ${r.transfers === 0 && r.exits > 20 ? `<div class="row"><span class="k">Private transfers in this window</span><span class="v"><b>0</b>: every move was a deposit or a withdrawal, the pattern of points farming, not of people paying each other privately</span></div>` : ''}
     <div class="row"><span class="k">Distinct deposit amounts</span><span class="v num">${int(r.distinctAmounts)}${r.topAmt ? ` · most common ${eth(BigInt(r.topAmt[0]), 6)} ETH × ${int(r.topAmt[1])}` : ''}</span></div>
     ${examples ? `<table class="feed" style="margin-top:8px"><thead><tr><th>Deposit</th><th>Amount</th><th>Withdrawal with the same amount</th><th>Paid to</th></tr></thead><tbody>${examples}</tbody></table>` : ''}
     <p class="note">A unique match is a candidate link, not proof: the same amount can come from two people. And no match isn't proof of privacy: timing and gas habits leak too. Use a common amount, wait, and split before exiting.</p>`;

@@ -44,8 +44,8 @@ export const SEL = {
 };
 
 export const CHAINS = {
-  1: { name: 'Ethereum', short: 'ETH', rpc: ['https://mainnet.gateway.tenderly.co', 'https://ethereum-rpc.publicnode.com', 'https://1rpc.io/eth', 'https://eth.drpc.org'], tx: 'https://etherscan.io/tx/', addr: 'https://etherscan.io/address/' },
-  8453: { name: 'Base', short: 'BASE', rpc: ['https://mainnet.base.org', 'https://base.gateway.tenderly.co', 'https://base-rpc.publicnode.com'], tx: 'https://basescan.org/tx/', addr: 'https://basescan.org/address/' },
+  1: { name: 'Ethereum', short: 'ETH', rpc: ['https://eth.llamarpc.com', 'https://rpc.mevblocker.io', 'https://ethereum-rpc.publicnode.com', 'https://eth-mainnet.public.blastapi.io', 'https://1rpc.io/eth', 'https://mainnet.gateway.tenderly.co', 'https://eth.drpc.org'], tx: 'https://etherscan.io/tx/', addr: 'https://etherscan.io/address/' },
+  8453: { name: 'Base', short: 'BASE', rpc: ['https://base.llamarpc.com', 'https://base-rpc.publicnode.com', 'https://mainnet.base.org', 'https://base-mainnet.public.blastapi.io', 'https://1rpc.io/base', 'https://base.drpc.org', 'https://base.gateway.tenderly.co'], tx: 'https://basescan.org/tx/', addr: 'https://basescan.org/address/' },
   4663: { name: 'Robinhood Chain', short: 'RH', rpc: ['https://rpc.mainnet.chain.robinhood.com'], tx: 'https://explorer.chain.robinhood.com/tx/', addr: 'https://explorer.chain.robinhood.com/address/' },
 };
 
@@ -56,17 +56,24 @@ export const big = (h) => (h && h !== '0x' ? BigInt(h) : 0n);
 let rpcId = 1;
 // An endpoint that refuses (403, 429, a capped batch) drops to the back of its chain's list, so the page stops asking it first.
 const demote = (chain, url) => { const l = CHAINS[chain].rpc; const i = l.indexOf(url); if (i >= 0 && l.length > 1) { l.splice(i, 1); l.push(url); } };
+// eth_getLogs ranges are capped differently by every endpoint, so a refused range is tried on every endpoint before
+// the caller is told to ask for a smaller one (err.range). Endpoints that answered a range keep their place.
 export async function rpc(chain, method, params) {
-  let last;
-  for (const url of [...CHAINS[chain].rpc]) {
+  let last, ranged = 0;
+  const list = [...CHAINS[chain].rpc];
+  for (const url of list) {
     try {
       const r = await fetch(url, { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ jsonrpc: '2.0', id: rpcId++, method, params }), signal: AbortSignal.timeout(method === 'eth_getLogs' ? 20000 : 8000) });
       if (!r.ok) throw new Error(`${r.status} from ${new URL(url).host}`);
       const j = await r.json();
-      if (j.error) { if (method === 'eth_getLogs') throw Object.assign(new Error(j.error.message || 'rpc error'), { range: true }); throw new Error(j.error.message || 'rpc error'); }
+      if (j.error) {
+        if (method === 'eth_getLogs') { ranged++; last = new Error(j.error.message || 'rpc error'); continue; }
+        throw new Error(j.error.message || 'rpc error');
+      }
       return j.result;
-    } catch (e) { last = e; if (e.range) throw e; demote(chain, url); }
+    } catch (e) { last = e; demote(chain, url); }
   }
+  if (method === 'eth_getLogs' && ranged) throw Object.assign(last, { range: true });
   throw last || new Error('no rpc');
 }
 
