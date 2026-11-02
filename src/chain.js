@@ -44,8 +44,8 @@ export const SEL = {
 };
 
 export const CHAINS = {
-  1: { name: 'Ethereum', short: 'ETH', rpc: ['https://eth.llamarpc.com', 'https://rpc.mevblocker.io', 'https://ethereum-rpc.publicnode.com', 'https://eth-mainnet.public.blastapi.io', 'https://1rpc.io/eth', 'https://mainnet.gateway.tenderly.co', 'https://eth.drpc.org'], tx: 'https://etherscan.io/tx/', addr: 'https://etherscan.io/address/' },
-  8453: { name: 'Base', short: 'BASE', rpc: ['https://base.llamarpc.com', 'https://base-rpc.publicnode.com', 'https://mainnet.base.org', 'https://base-mainnet.public.blastapi.io', 'https://1rpc.io/base', 'https://base.drpc.org', 'https://base.gateway.tenderly.co'], tx: 'https://basescan.org/tx/', addr: 'https://basescan.org/address/' },
+  1: { name: 'Ethereum', short: 'ETH', rpc: ['https://rpc.mevblocker.io', 'https://ethereum-rpc.publicnode.com', 'https://1rpc.io/eth', 'https://mainnet.gateway.tenderly.co', 'https://eth.drpc.org'], tx: 'https://etherscan.io/tx/', addr: 'https://etherscan.io/address/' },
+  8453: { name: 'Base', short: 'BASE', rpc: ['https://base-rpc.publicnode.com', 'https://mainnet.base.org', 'https://base-mainnet.public.blastapi.io', 'https://1rpc.io/base', 'https://base.drpc.org', 'https://base.gateway.tenderly.co'], tx: 'https://basescan.org/tx/', addr: 'https://basescan.org/address/' },
   4663: { name: 'Robinhood Chain', short: 'RH', rpc: ['https://rpc.mainnet.chain.robinhood.com'], tx: 'https://explorer.chain.robinhood.com/tx/', addr: 'https://explorer.chain.robinhood.com/address/' },
 };
 
