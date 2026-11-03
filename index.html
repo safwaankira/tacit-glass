@@ -42,6 +42,7 @@
   :focus-visible { outline:2px solid color-mix(in srgb, var(--focus) 60%, transparent); outline-offset:2px; }
   .wrap { max-width:1200px; margin:0 auto; }
   small { color:var(--subtle); }
+  td a[href*="/tx/"], .row .v a[href*="/tx/"], .row .v a[href*="/address/"]:not(.xns), td a[href*="/address/"]:not(.xns), .row .v a[href*="/block/"] { font-family:var(--mono); font-size:.92em; }
   code { font:400 12.5px/1.5 var(--mono); background:var(--s2); color:var(--muted); padding:1px 6px; border-radius:4px; }
 
   header { padding:36px 0 22px; display:flex; flex-wrap:wrap; gap:14px 24px; align-items:flex-end; justify-content:space-between; }
@@ -195,7 +196,7 @@
       <h1>Tacit Glass</h1>
       <div class="tag">Everything happening on Tacit, on one page, read live from mainnet by your browser. What the chains make public is shown as it is. What the protocol keeps private shows as <span class="hid">withheld</span>.</div>
     </div>
-    <div class="hdr-r"><button type="button" id="theme" aria-label="Switch colour theme">Light mode</button><div id="asof"><span class="live"></span>live</div></div>
+    <div class="hdr-r"><button type="button" id="theme" aria-label="Switch colour theme"></button><div id="asof"><span class="live"></span>live</div></div>
   </header>
   <nav>
     <a href="#overview"><b>§1</b>Overview</a><a href="#bitcoin"><b>§2</b>Bitcoin</a><a href="#ethereum"><b>§3</b>Ethereum · Base</a><a href="#bridge"><b>§4</b>Bridge</a><a href="#privacy-h"><b>§5</b>Privacy</a><a href="#look"><b>§6</b>Look up</a><a href="#how">How it's read</a>
@@ -241,7 +242,7 @@
   <section id="privacy-h">
     <h2><span class="no">§5</span>Privacy <small>what an observer sees, what stays withheld, and how much that hides</small></h2>
     <div class="card tablewrap" id="privacy">Reading…</div>
-    <h3 id="linkcheck" style="margin-top:24px;scroll-margin-top:52px">Linkability check <small>exits that give themselves away by amount, measured from the pool's own logs</small></h3>
+    <h2 id="linkcheck" style="margin-top:40px;scroll-margin-top:70px">Linkability check <small>exits that give themselves away by amount, measured from the pool's own logs</small></h2>
     <div class="grid2">
       <div class="card tablewrap" id="link-8453">Waiting for the page to load…</div>
       <div class="card tablewrap" id="link-1">Waiting for the page to load…</div>
@@ -251,7 +252,7 @@
   <section id="look">
     <h2><span class="no">§6</span>Look up <small>a tacit1 ID, Bitcoin txid, EVM address or tx, or name@xns</small></h2>
     <div class="card">
-      <form id="lookup-form"><input id="q" placeholder="tacit1…  ·  txid  ·  0x…  ·  name@xns" autocomplete="off" spellcheck="false"><button>Look up</button></form>
+      <form id="lookup-form"><input id="q" placeholder="tacit1…, txid, 0x… or name@xns" autocomplete="off" spellcheck="false"><button>Look up</button></form>
       <div class="tries">try
         <button type="button" data-try="tacit1qqps86ymc78aa5v4q03hjlz70hrmq3a2xa4g8zg9exreekzye4h6yw4eqdvy85q973gqj85aa84d25wpex67fpal72yznlej9q85eez9ax0jsqlgn0rclhk3j5p7x7tute7u0vz84gmk4qufqhyc08xcgnxklg36hyl7pvk0">a tacit1 ID</button>
         <button type="button" data-try="e2d10be19c2b73b86e14be99dc237a3d999ba3dfbe6f3e3714590acee2ca481e">TAC genesis etch</button>
