@@ -9,162 +9,172 @@
 <meta property="og:description" content="Bitcoin envelopes, confidential pools and the bridge between them, on one page. Real mainnet data, read in your browser.">
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' fill='%23F4EEE3'/%3E%3Crect x='10' y='22' width='44' height='9' fill='%23171717'/%3E%3Crect x='10' y='37' width='28' height='9' fill='%23171717'/%3E%3Crect x='44' y='37' width='10' height='9' fill='%23E07B00'/%3E%3C/svg%3E">
 <style>
+  @font-face { font-family:"IBM Plex Sans"; font-weight:400; font-display:swap; src:url(fonts/ibm-plex-sans-latin-400-normal.woff2) format("woff2"); }
+  @font-face { font-family:"IBM Plex Sans"; font-weight:500; font-display:swap; src:url(fonts/ibm-plex-sans-latin-500-normal.woff2) format("woff2"); }
+  @font-face { font-family:"IBM Plex Sans"; font-weight:600; font-display:swap; src:url(fonts/ibm-plex-sans-latin-600-normal.woff2) format("woff2"); }
+  @font-face { font-family:"IBM Plex Sans"; font-weight:700; font-display:swap; src:url(fonts/ibm-plex-sans-latin-700-normal.woff2) format("woff2"); }
   @font-face { font-family:"IBM Plex Mono"; font-weight:400; font-display:swap; src:url(fonts/ibm-plex-mono-latin-400-normal.woff2) format("woff2"); }
   @font-face { font-family:"IBM Plex Mono"; font-weight:500; font-display:swap; src:url(fonts/ibm-plex-mono-latin-500-normal.woff2) format("woff2"); }
-  @font-face { font-family:"IBM Plex Mono"; font-weight:600; font-display:swap; src:url(fonts/ibm-plex-mono-latin-600-normal.woff2) format("woff2"); }
-  @font-face { font-family:"IBM Plex Serif"; font-weight:600; font-display:swap; src:url(fonts/ibm-plex-serif-latin-600-normal.woff2) format("woff2"); }
-  /* Tokens from DESIGN.md (linted with @google/design.md). A declassified audit file: paper, ink, redaction bars. */
+  /* Tokens from DESIGN.md: PostHog's system (VoltAgent/awesome-design-md, MIT), adapted. Linted with @google/design.md. */
   :root {
-    --paper:#F4EEE3; --paper-deep:#EAE2D3; --ink:#171717; --ink-soft:#5E584F; --rule:#CFC5B4;
-    --redaction:#171717; --on-redaction:#8A8276; --accent:#E07B00; --verified:#2F6B4F; --on-verified:#F4EEE3;
-    --btc:#B85F00; --evm:#4B4BC4; --alert:#A3301B;
-    --serif:"IBM Plex Serif", Georgia, serif; --mono:"IBM Plex Mono", ui-monospace, Menlo, Consolas, monospace;
+    --primary:#f7a501; --primary-pressed:#dd9001; --on-primary:#23251d;
+    --ink:#23251d; --body:#4d4f46; --mute:#6c6e63; --hairline:#bfc1b7; --hairline-soft:#dcdfd2;
+    --canvas:#eeefe9; --soft:#e5e7e0; --card:#ffffff; --dark:#23251d; --on-dark:#ffffff; --on-dark-mute:#b6b7af;
+    --link:#1078a3; --red:#cd4239; --red-soft:#f7d6d3; --green:#2c8c66; --green-soft:#d9eddf; --green-ink:#1d6a4b; --blue-soft:#dceaf6;
+    --btc:#c66a00; --evm:#5b5bd6;
+    --sans:"IBM Plex Sans", -apple-system, system-ui, sans-serif; --mono:"IBM Plex Mono", ui-monospace, Menlo, monospace;
   }
   @media (prefers-color-scheme: dark) {
-    :root:not([data-theme="light"]) { --paper:#14120F; --paper-deep:#1D1A16; --ink:#ECE6DA; --ink-soft:#A39B8E; --rule:#36312A; --redaction:#ECE6DA; --on-redaction:#6E675C; --accent:#FF9818; --verified:#4E9E78; --on-verified:#14120F; --btc:#FFAD4D; --evm:#9A9AFF; --alert:#E07A63; }
+    :root:not([data-theme="light"]) { --ink:#eeefe9; --body:#c9cbc0; --mute:#9b9c92; --hairline:#45473e; --hairline-soft:#34362e; --canvas:#1a1b16; --soft:#2a2c24; --card:#23251d; --dark:#0f100c; --link:#5bb5dc; --red:#ef7c72; --red-soft:#3d2421; --green-soft:#1e3328; --green-ink:#8fd1b2; --blue-soft:#1f2c38; --btc:#ffad4d; --evm:#9a9aff; }
   }
-  :root[data-theme="dark"] { --paper:#14120F; --paper-deep:#1D1A16; --ink:#ECE6DA; --ink-soft:#A39B8E; --rule:#36312A; --redaction:#ECE6DA; --on-redaction:#6E675C; --accent:#FF9818; --verified:#4E9E78; --on-verified:#14120F; --btc:#FFAD4D; --evm:#9A9AFF; --alert:#E07A63; }
+  :root[data-theme="dark"] { --ink:#eeefe9; --body:#c9cbc0; --mute:#9b9c92; --hairline:#45473e; --hairline-soft:#34362e; --canvas:#1a1b16; --soft:#2a2c24; --card:#23251d; --dark:#0f100c; --link:#5bb5dc; --red:#ef7c72; --red-soft:#3d2421; --green-soft:#1e3328; --green-ink:#8fd1b2; --blue-soft:#1f2c38; --btc:#ffad4d; --evm:#9a9aff; }
 
   * { box-sizing:border-box; }
   html,body { margin:0; }
-  body { background:var(--paper); color:var(--ink); font:400 13px/20px var(--mono); padding:0 16px 80px; font-variant-numeric:tabular-nums; }
-  a { color:inherit; text-decoration:underline; text-decoration-color:var(--accent); text-underline-offset:2px; }
-  a:hover { color:var(--accent); }
+  body { background:var(--canvas); color:var(--body); font:400 15px/1.5 var(--sans); padding:0 24px 80px; font-variant-numeric:tabular-nums; }
+  a { color:var(--link); text-decoration:none; }
+  a:hover { text-decoration:underline; }
   a.xns { font-weight:600; }
-  .wrap { max-width:1120px; margin:0 auto; }
-  small { color:var(--ink-soft); }
+  b, strong { color:var(--ink); font-weight:600; }
+  .wrap { max-width:1200px; margin:0 auto; }
+  small { color:var(--mute); }
+  code { font:500 12.5px/1.43 var(--mono); background:var(--soft); color:var(--ink); padding:1px 6px; border-radius:2px; }
 
-  /* header: the file's cover line */
-  header { padding:28px 0 14px; display:flex; flex-wrap:wrap; gap:10px 24px; align-items:flex-end; justify-content:space-between; border-bottom:2px solid var(--ink); }
-  .file { font:500 10.5px/14px var(--mono); letter-spacing:.1em; text-transform:uppercase; color:var(--ink-soft); margin-bottom:6px; }
-  header h1 { font:600 30px/36px var(--serif); letter-spacing:-.01em; margin:0; }
-  .tag { color:var(--ink-soft); max-width:64ch; margin-top:6px; }
-  #asof { font:500 10.5px/14px var(--mono); letter-spacing:.06em; text-transform:uppercase; color:var(--ink-soft); text-align:right; }
-  .live { display:inline-block; width:8px; height:8px; background:var(--accent); margin-right:6px; vertical-align:0; animation:blink 2s steps(2,start) infinite; }
-  @keyframes blink { to { opacity:.25; } }
+  header { padding:32px 0 20px; display:flex; flex-wrap:wrap; gap:12px 24px; align-items:flex-end; justify-content:space-between; }
+  .file { font:700 12px/1.33 var(--sans); letter-spacing:.04em; text-transform:uppercase; color:var(--mute); margin-bottom:6px; }
+  header h1 { font:700 32px/1.3 var(--sans); letter-spacing:-.5px; color:var(--ink); margin:0; }
+  .tag { max-width:66ch; margin-top:6px; }
+  #asof { font:500 13px/1.5 var(--sans); color:var(--mute); text-align:right; }
+  .live { display:inline-block; width:8px; height:8px; border-radius:50%; background:var(--green); margin-right:6px; vertical-align:1px; animation:pulse 2s ease-in-out infinite; }
+  @keyframes pulse { 50% { opacity:.35; } }
   @media (prefers-reduced-motion: reduce) { .live { animation:none; } }
-  nav { display:flex; flex-wrap:wrap; gap:4px 18px; padding:10px 0; border-bottom:1px solid var(--rule); position:sticky; top:0; background:var(--paper); z-index:5; }
-  nav a { font:500 10.5px/16px var(--mono); letter-spacing:.08em; text-transform:uppercase; text-decoration:none; color:var(--ink-soft); }
-  nav a:hover { color:var(--ink); }
-  nav a b { color:var(--ink); font-weight:600; margin-right:4px; }
+  nav { display:flex; flex-wrap:wrap; gap:2px 4px; padding:4px 6px; background:var(--soft); border-radius:6px; position:sticky; top:8px; z-index:5; }
+  nav a { font:500 14px/1.43 var(--sans); color:var(--body); padding:6px 10px; border-radius:6px; }
+  nav a:hover { background:var(--card); color:var(--ink); text-decoration:none; }
+  nav a b { display:none; }
 
-  /* sections: numbered like a report */
-  section { margin-top:36px; scroll-margin-top:52px; }
-  h2 { font:600 20px/26px var(--serif); margin:0 0 4px; padding-top:14px; border-top:1px solid var(--ink); display:flex; flex-wrap:wrap; align-items:baseline; gap:4px 12px; }
-  h2 .no { font:600 12px/16px var(--mono); color:var(--ink-soft); min-width:2.2em; }
-  h2 small { font:400 12px/16px var(--mono); color:var(--ink-soft); }
-  h3 { font:600 10.5px/14px var(--mono); letter-spacing:.1em; text-transform:uppercase; margin:0 0 6px; color:var(--ink); }
-  h3 small { font-weight:400; letter-spacing:.04em; text-transform:none; margin-left:6px; }
-  .card { padding:14px 0 0; }
-  .grid2 { display:grid; grid-template-columns:1fr 1fr; gap:0 40px; }
-  .grid2 > * + * { }
-  @media (max-width:820px) { .grid2 { grid-template-columns:1fr; } }
+  section { margin-top:56px; scroll-margin-top:64px; }
+  h2 { font:700 22px/1.33 var(--sans); letter-spacing:-.5px; color:var(--ink); margin:0 0 14px; display:flex; flex-wrap:wrap; align-items:baseline; gap:2px 12px; }
+  h2 .no { display:none; }
+  h2 small { font:400 14px/1.43 var(--sans); letter-spacing:0; color:var(--mute); }
+  h3 { font:700 16px/1.4 var(--sans); color:var(--ink); margin:0 0 10px; }
+  h3 small { font-weight:400; font-size:13px; margin-left:6px; }
+  .card { background:var(--card); border:1px solid var(--hairline); border-radius:6px; padding:20px; }
+  .grid2 { display:grid; grid-template-columns:1fr 1fr; gap:16px; align-items:start; }
+  .grid2 > div:not(.card) { display:grid; gap:16px; }
+  .grid2 > div:not(.card) > .card { margin-top:0 !important; }
+  @media (max-width:860px) { .grid2 { grid-template-columns:1fr; } }
 
-  /* rows and tables: hairline ledger */
-  .row { display:flex; justify-content:space-between; gap:12px; padding:5px 0; border-bottom:1px solid var(--rule); }
+  .row { display:flex; justify-content:space-between; gap:12px; padding:7px 0; border-bottom:1px solid var(--hairline-soft); font-size:14px; }
   .row:last-child { border-bottom:0; }
-  .row .k { color:var(--ink-soft); }
-  .k small { display:block; font-size:11px; line-height:15px; }
-  .row .v { text-align:right; word-break:break-word; }
-  code { font:inherit; font-size:12px; color:var(--ink-soft); }
-  table { width:100%; border-collapse:collapse; }
-  th, td { text-align:left; padding:5px 10px 5px 0; border-bottom:1px solid var(--rule); vertical-align:top; }
-  th { font:500 10px/14px var(--mono); letter-spacing:.1em; text-transform:uppercase; color:var(--ink-soft); border-bottom:1px solid var(--ink); }
+  .row .k { color:var(--body); }
+  .k small { display:block; font-size:12.5px; line-height:1.4; }
+  .row .v { text-align:right; color:var(--ink); word-break:break-word; }
+  table { width:100%; border-collapse:collapse; font-size:14px; }
+  th, td { text-align:left; padding:7px 12px 7px 0; border-bottom:1px solid var(--hairline-soft); vertical-align:top; }
+  th { font:700 12px/1.33 var(--sans); letter-spacing:.04em; text-transform:uppercase; color:var(--mute); border-bottom:1px solid var(--hairline); }
+  td { color:var(--body); }
   .tablewrap { overflow-x:auto; }
-  .feed td { font-size:12px; line-height:18px; }
-  .note { color:var(--ink-soft); font-size:11px; line-height:16px; margin:10px 0 0; }
-  .err { color:var(--alert); }
-  p.err { font-size:12px; }
+  .feed td { font-size:13.5px; line-height:1.45; }
+  .note { color:var(--mute); font-size:13px; line-height:1.5; margin:12px 0 0; }
+  .err { color:var(--red); }
+  p.err { font-size:14px; }
 
-  /* source notes: footnotes, not badges */
-  .src { font:600 9.5px/12px var(--mono); letter-spacing:.08em; text-transform:uppercase; color:var(--ink-soft); white-space:nowrap; margin-left:4px; }
-  .src-match { background:var(--verified); color:var(--on-verified); padding:1px 4px; border-radius:2px; }
-  .src-differ { color:var(--alert); }
-  /* redaction: the protocol's withheld values, drawn where they would sit */
-  .hid { display:inline-block; min-width:7.5ch; padding:0 6px; background:var(--redaction); color:var(--on-redaction); font:600 9.5px/16px var(--mono); letter-spacing:.08em; text-transform:uppercase; vertical-align:1px; user-select:none; }
+  .src { font:700 10.5px/1.3 var(--sans); letter-spacing:.04em; text-transform:uppercase; color:var(--mute); white-space:nowrap; margin-left:5px; }
+  .src-match { background:var(--green-soft); color:var(--green-ink); padding:1px 8px; border-radius:999px; }
+  .src-differ { color:var(--red); }
+  .hid { display:inline-block; padding:1px 6px; background:var(--dark); color:var(--on-dark-mute); font:700 10.5px/1.4 var(--sans); letter-spacing:.06em; text-transform:uppercase; border-radius:2px; vertical-align:1px; user-select:none; }
 
-  /* §1 pulse: four figures in a ruled strip */
-  #pulse { display:grid; grid-template-columns:repeat(4,1fr); border-bottom:1px solid var(--rule); margin-top:6px; }
-  @media (max-width:820px) { #pulse { grid-template-columns:1fr 1fr; } }
-  .cell { padding:12px 14px 12px 0; display:flex; flex-direction:column; }
-  .cell + .cell { padding-left:14px; border-left:1px solid var(--rule); }
-  @media (max-width:820px) { .cell:nth-child(3) { padding-left:0; border-left:0; } .cell:nth-child(n+3) { border-top:1px solid var(--rule); } }
-  .cell .lbl { font:500 10.5px/14px var(--mono); letter-spacing:.1em; text-transform:uppercase; color:var(--ink-soft); }
-  .cell b { font:500 24px/30px var(--mono); margin:4px 0 2px; }
-  .cell b a { text-decoration-thickness:1px; }
-  .cell .sub { font-size:11px; color:var(--ink-soft); }
-  .cell.warn b { color:var(--alert); }
+  #pulse { display:grid; grid-template-columns:repeat(4,1fr); gap:16px; }
+  @media (max-width:860px) { #pulse { grid-template-columns:1fr 1fr; } }
+  .cell { background:var(--card); border:1px solid var(--hairline); border-radius:6px; padding:16px; display:flex; flex-direction:column; }
+  .cell .lbl { font:700 12px/1.33 var(--sans); letter-spacing:.04em; text-transform:uppercase; color:var(--mute); }
+  .cell b { font:700 26px/1.2 var(--sans); color:var(--ink); margin:8px 0 4px; }
+  .cell b a { color:var(--ink); }
+  .cell .sub { font-size:13px; color:var(--mute); }
+  .cell.ok { border-color:var(--green); }
+  .cell.warn b { color:var(--red); }
 
-  /* the finding */
-  #headline { display:flex; flex-wrap:wrap; align-items:baseline; gap:6px 16px; margin-top:16px; padding:14px 18px; background:var(--ink); color:var(--paper); text-decoration:none; }
-  #headline .hl-k { font:600 10px/14px var(--mono); letter-spacing:.12em; text-transform:uppercase; color:var(--accent); }
-  #headline-t { flex:1; min-width:240px; font-size:13.5px; line-height:21px; }
-  #headline-t b { color:var(--accent); font-weight:600; }
-  #headline .hl-go { font-size:11px; color:var(--on-redaction); }
-  #headline:hover .hl-go { color:var(--accent); }
+  #headline { display:flex; flex-wrap:wrap; align-items:baseline; gap:6px 14px; margin-top:16px; padding:16px 20px; background:var(--red-soft); color:var(--ink); border-radius:6px; text-decoration:none; }
+  #headline .hl-k { font:700 14px/1.5 var(--sans); color:var(--ink); }
+  #headline .hl-k::before { content:"⚠️ "; }
+  #headline-t { flex:1; min-width:260px; font-size:15px; line-height:1.55; color:var(--ink); }
+  #headline-t b { color:var(--red); font-weight:700; }
+  #headline .hl-go { font:500 13px/1.5 var(--sans); color:var(--link); }
+  #headline:hover { text-decoration:none; }
+  #headline:hover .hl-go { text-decoration:underline; }
 
-  /* map: three columns, each headed by its chain rule */
-  #map { display:grid; grid-template-columns:1fr 1.1fr 1fr; gap:0 28px; margin-top:12px; }
-  @media (max-width:820px) { #map { grid-template-columns:1fr; gap:22px; } }
-  .lane { padding-top:10px; border-top:3px solid var(--ink); }
+  #map { display:grid; grid-template-columns:1fr 1.1fr 1fr; gap:16px; margin-top:16px; }
+  @media (max-width:860px) { #map { grid-template-columns:1fr; } }
+  .lane { background:var(--card); border:1px solid var(--hairline); border-top:3px solid var(--hairline); border-radius:6px; padding:18px 20px; }
   .lane.btc { border-top-color:var(--btc); }
   .lane.evm { border-top-color:var(--evm); }
-  .lane.bridge { border-top-color:var(--ink-soft); }
-  .lane h3 small { display:inline; }
-  .lane p { color:var(--ink-soft); font-size:12px; line-height:18px; margin:0 0 8px; }
-  .arrow { font:500 10.5px/14px var(--mono); letter-spacing:.04em; color:var(--ink-soft); margin:10px 0 2px; }
-  .big .row b { font-weight:600; }
-  .chaincol { border-top:3px solid var(--ink); padding-top:10px; }
-  .chaincol.btc { border-top-color:var(--btc); }
-  .chaincol.evm { border-top-color:var(--evm); }
+  .lane.bridge { border-top-color:var(--ink); }
+  .lane h3 { margin-bottom:6px; }
+  .lane p { color:var(--mute); font-size:13.5px; line-height:1.5; margin:0 0 8px; }
+  .arrow { font:600 12.5px/1.4 var(--sans); color:var(--mute); margin:12px 0 2px; }
+  #bitcoin .grid2 > .card:first-child, #bitcoin .grid2 > div > .card { border-top:3px solid var(--btc); }
+  #ethereum .card { border-top:3px solid var(--evm); }
 
-  /* envelopes */
-  .compact td { padding:4px 10px 4px 0; vertical-align:baseline; }
-  .compact tr.env td:first-child { width:84px; }
-  .kind { font:600 9.5px/12px var(--mono); letter-spacing:.1em; text-transform:uppercase; color:var(--ink); }
-  .kind::before { content:''; display:inline-block; width:6px; height:6px; margin-right:6px; background:var(--btc); vertical-align:1px; }
-  details.older { margin-top:6px; }
-  details.older summary { cursor:pointer; color:var(--ink-soft); font-size:11.5px; padding:6px 0; }
-  table.legend { margin-top:14px; font-size:11.5px; }
-  table.legend td { padding:4px 10px 4px 0; color:var(--ink-soft); }
-  table.legend td:first-child { width:84px; }
+  .compact td { padding:6px 12px 6px 0; vertical-align:baseline; }
+  .compact tr.env td:first-child { width:96px; }
+  .kind { font:700 11px/1.3 var(--sans); letter-spacing:.04em; text-transform:uppercase; color:var(--ink); white-space:nowrap; }
+  .kind::before { content:''; display:inline-block; width:8px; height:8px; border-radius:2px; margin-right:6px; background:var(--btc); vertical-align:0; }
+  .kind.k-transfer::before { background:var(--evm); }
+  .kind.k-burn::before { background:var(--red); }
+  .kind.k-mint::before, .kind.k-amm::before { background:var(--green); }
+  details.older { margin-top:8px; }
+  details.older summary { cursor:pointer; color:var(--link); font-size:14px; padding:6px 0; }
+  table.legend { margin-top:16px; font-size:13px; }
+  table.legend td { padding:6px 12px 6px 0; color:var(--body); }
+  table.legend td:first-child { width:96px; }
 
-  /* §5 privacy table */
-  .pv td:first-child { font-weight:600; width:20%; }
-  .pvbox { margin:12px 0 0; padding:10px 0 0; border-top:1px solid var(--ink); font-size:12px; line-height:18px; }
+  .pv td:first-child { font-weight:600; color:var(--ink); width:20%; }
+  .pv tr:last-child td { background:var(--dark); color:var(--on-dark-mute); border-bottom:0; }
+  .pv tr:last-child td:first-child { color:var(--on-dark); padding-left:12px; border-radius:6px 0 0 6px; }
+  .pv tr:last-child td:last-child { border-radius:0 6px 6px 0; }
+  .pv tr:last-child a { color:#8fd0ef; }
+  .pv tr:last-child b { color:var(--on-dark); }
+  .pvbox { margin:14px 0 0; padding:12px 16px; background:var(--blue-soft); border-radius:6px; font-size:14px; line-height:1.5; color:var(--ink); }
 
-  /* §6 look up: the result is an exhibit */
-  form { display:flex; gap:0; border:1px solid var(--ink); }
-  input { flex:1; min-width:0; font:inherit; padding:11px 12px; border:0; background:var(--paper); color:var(--ink); outline:none; }
-  input:focus { background:var(--paper-deep); }
-  form > button { font:600 11px/14px var(--mono); letter-spacing:.1em; text-transform:uppercase; padding:0 18px; border:0; background:var(--ink); color:var(--paper); cursor:pointer; }
-  .tries { margin-top:8px; display:flex; flex-wrap:wrap; gap:4px 14px; font-size:11.5px; color:var(--ink-soft); }
-  .tries button { padding:0; font:inherit; background:none; border:0; color:var(--ink); text-decoration:underline; text-decoration-color:var(--accent); text-underline-offset:2px; cursor:pointer; }
-  #lookup-out { margin-top:14px; }
-  #lookup-out .card { background:var(--paper-deep); padding:14px 16px; position:relative; }
-  #lookup-out .card::before { content:'Exhibit'; display:block; font:600 9.5px/12px var(--mono); letter-spacing:.12em; text-transform:uppercase; color:var(--ink-soft); margin-bottom:6px; }
-  button.lk { padding:0 3px; margin-left:3px; font:inherit; font-size:11px; background:transparent; color:var(--ink-soft); border:0; cursor:pointer; }
-  button.lk:hover { color:var(--accent); }
+  form { display:flex; gap:8px; }
+  input { flex:1; min-width:0; font:400 15px/1.5 var(--sans); height:40px; padding:8px 12px; border:1px solid var(--hairline); border-radius:6px; background:var(--card); color:var(--ink); }
+  input:focus { outline:2px solid rgba(59,130,246,.5); border-color:#2c84e0; }
+  form > button { font:700 14px/1.5 var(--sans); height:40px; padding:8px 18px; border:0; border-radius:6px; background:var(--primary); color:var(--on-primary); cursor:pointer; }
+  form > button:active { background:var(--primary-pressed); }
+  .tries { margin-top:10px; display:flex; flex-wrap:wrap; gap:6px; font-size:13px; color:var(--mute); align-items:center; }
+  .tries button { font:500 13px/1 var(--sans); padding:7px 12px; background:var(--soft); color:var(--ink); border:0; border-radius:6px; cursor:pointer; }
+  .tries button:hover { background:var(--hairline-soft); }
+  #lookup-out { margin-top:16px; }
+  #lookup-out .card { background:var(--canvas); }
+  button.lk { padding:0 4px; margin-left:2px; font:inherit; font-size:12px; background:transparent; color:var(--mute); border:0; cursor:pointer; }
+  button.lk:hover { color:var(--link); }
 
-  footer { margin-top:44px; padding-top:14px; border-top:2px solid var(--ink); color:var(--ink-soft); font-size:11.5px; line-height:18px; }
+  footer { margin-top:56px; padding:16px 20px; background:var(--blue-soft); border-radius:6px; color:var(--ink); font-size:13.5px; line-height:1.55; }
   footer p { margin:6px 0; }
 
-  /* Phones: tables become stacks of labelled rows; envelope rows stay one line */
   @media (max-width:640px) {
-    header h1 { font-size:26px; line-height:32px; }
+    body { padding:0 16px 64px; }
+    header h1 { font-size:26px; }
     #asof { text-align:left; }
+    nav { top:4px; }
+    .cell b { font-size:21px; }
+    .card, .lane { padding:16px; }
     #headline { flex-direction:column; gap:4px; }
     #headline-t { min-width:0; }
-    .cell b { font-size:19px; line-height:26px; }
     table thead { display:none; }
-    table tr { display:block; padding:6px 0; border-bottom:1px solid var(--rule); }
+    table tr { display:block; padding:8px 0; border-bottom:1px solid var(--hairline-soft); }
     table td { display:block; border:0; padding:1px 0; }
     table td:empty { display:none; }
-    table td[data-label]::before { content:attr(data-label); display:block; font:500 9.5px/13px var(--mono); text-transform:uppercase; letter-spacing:.1em; color:var(--ink-soft); }
-    table.compact tr { display:table-row; padding:0; }
-    table.compact td { display:table-cell; padding:4px 6px 4px 0; border-bottom:1px solid var(--rule); }
+    table td[data-label]::before { content:attr(data-label); display:block; font:700 11px/1.4 var(--sans); text-transform:uppercase; letter-spacing:.04em; color:var(--mute); }
+    table.keep thead { display:table-header-group; }
+    table.keep tr, table.compact tr { display:table-row; padding:0; }
+    table.keep td { display:table-cell; padding:6px 8px 6px 0; border-bottom:1px solid var(--hairline-soft); }
+    table.keep td[data-label]::before { content:none; }
+    table.compact td { display:table-cell; padding:6px 8px 6px 0; border-bottom:1px solid var(--hairline-soft); }
     table.compact td[data-label]::before { content:none; }
     table.compact td:nth-child(4) { display:none; }
+    .pv tr:last-child td { padding-left:12px; border-radius:0; }
     .row { flex-wrap:wrap; }
     .row .v { text-align:left; }
     .pv td:first-child { width:auto; }
@@ -175,20 +185,20 @@
 <div class="wrap">
   <header>
     <div>
-      <div class="file">File · Tacit protocol · Bitcoin ⇄ Ethereum · Base · Robinhood</div>
+      <div class="file">Tacit protocol explorer · Bitcoin ⇄ Ethereum · Base · Robinhood</div>
       <h1>Tacit Glass</h1>
-      <div class="tag">Everything happening on Tacit, on one page, read live from mainnet by your browser. What the chains make public is printed. What the protocol keeps private is <span class="hid">withheld</span>.</div>
+      <div class="tag">Everything happening on Tacit, on one page, read live from mainnet by your browser. What the chains make public is shown as it is. What the protocol keeps private shows as <span class="hid">withheld</span>.</div>
     </div>
     <div id="asof"><span class="live"></span>live</div>
   </header>
   <nav>
-    <a href="#overview"><b>§1</b>Pulse</a><a href="#bitcoin"><b>§2</b>Bitcoin</a><a href="#ethereum"><b>§3</b>Ethereum · Base</a><a href="#bridge"><b>§4</b>Bridge</a><a href="#privacy-h"><b>§5</b>Privacy</a><a href="#look"><b>§6</b>Look up</a><a href="#how">Method</a>
+    <a href="#overview"><b>§1</b>Overview</a><a href="#bitcoin"><b>§2</b>Bitcoin</a><a href="#ethereum"><b>§3</b>Ethereum · Base</a><a href="#bridge"><b>§4</b>Bridge</a><a href="#privacy-h"><b>§5</b>Privacy</a><a href="#look"><b>§6</b>Look up</a><a href="#how">How it's read</a>
   </nav>
 
   <section id="overview">
     <h2><span class="no">§1</span>Pulse <small>are the two chains in step?</small></h2>
     <div id="pulse"><div class="cell"><span class="lbl">Reading</span><b>…</b></div></div>
-    <a id="headline" href="#linkcheck"><span class="hl-k">Finding</span><span id="headline-t">Reading the pools' own logs to measure how much they really hide…</span><span class="hl-go">evidence §5 ↓</span></a>
+    <a id="headline" href="#linkcheck"><span class="hl-k">Privacy finding</span><span id="headline-t">Reading the pools' own logs to measure how much they really hide…</span><span class="hl-go">See the evidence ↓</span></a>
     <div id="map"></div>
   </section>
 
@@ -209,11 +219,9 @@
       <div class="card"><h3>V1 ConfidentialPool <small>Ethereum</small></h3><div id="evm-v1">Reading…</div></div>
       <div class="card"><h3>cBTC · cUSD · TAC · wTAC</h3><div class="tablewrap" id="evm-assets">Reading…</div></div>
     </div>
-    <div class="card" style="margin-top:18px"><h3>ETH pool on every chain <small>TacitEvmPool, one address everywhere</small></h3><div class="tablewrap" id="evm-pools">Reading…</div></div>
-    <div class="grid2" style="margin-top:18px">
-      <div class="card"><h3>Latest V1 pool activity</h3><div class="tablewrap" id="evm-feed">Reading…</div></div>
-      <div class="card"><h3>Latest Base pool activity</h3><div class="tablewrap" id="base-feed">Reading…</div></div>
-    </div>
+    <div class="card" style="margin-top:16px"><h3>ETH pool on every chain <small>TacitEvmPool, one address everywhere</small></h3><div class="tablewrap" id="evm-pools">Reading…</div></div>
+    <div class="card" style="margin-top:16px"><h3>Latest V1 pool activity <small>Ethereum</small></h3><div class="tablewrap" id="evm-feed">Reading…</div></div>
+    <div class="card" style="margin-top:16px"><h3>Latest Base pool activity</h3><div class="tablewrap" id="base-feed">Reading…</div></div>
   </section>
 
   <section id="bridge">
@@ -249,7 +257,7 @@
   </section>
 
   <footer id="how">
-    <p><b>Method.</b> Every figure carries a source note. <span class="src">chain</span> your browser asked a public Ethereum, Base or Robinhood node directly. <span class="src">bitcoin</span> mempool.space or blockstream. <span class="src">indexer</span> Tacit's public API. <span class="src">tacitscan</span> tacitscan.io's indexer. <span class="src src-match">chain ✓ indexer</span> both were read and agree. <span class="src src-differ">chain ≠ indexer</span> they disagree; trust the chain. <span class="hid">withheld</span> a value the protocol keeps private, drawn where it would sit.</p>
+    <p><b>📘 How every number is read.</b> Every figure carries a source note. <span class="src">chain</span> your browser asked a public Ethereum, Base or Robinhood node directly. <span class="src">bitcoin</span> mempool.space or blockstream. <span class="src">indexer</span> Tacit's public API. <span class="src">tacitscan</span> tacitscan.io's indexer. <span class="src src-match">chain ✓ indexer</span> both were read and agree. <span class="src src-differ">chain ≠ indexer</span> they disagree; trust the chain. <span class="hid">withheld</span> a value the protocol keeps private, drawn where it would sit.</p>
     <p>No wallet, no sign-in, no keys, nothing written to any chain. Refreshes every minute. Addresses from Tacit's <a href="https://github.com/src-company/tacit/blob/main/docs/DEPLOYMENTS.md" target="_blank" rel="noopener">DEPLOYMENTS.md</a>. Built on Tacit's MIT-licensed dapp template, stats reader and address kit; design specified in <a href="https://github.com/safwaankira/tacit-glass/blob/main/DESIGN.md" target="_blank" rel="noopener">DESIGN.md</a>.</p>
     <p><a href="https://github.com/safwaankira/tacit-glass" target="_blank" rel="noopener">source</a> · Bitcoin decoding cross-referenced with <a href="https://www.tacitscan.io" target="_blank" rel="noopener">tacitscan.io</a></p>
   </footer>

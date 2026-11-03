@@ -216,7 +216,7 @@ async function evmPoolFeed(chain, el, span) {
       if (e.fee > 0n) vis.push(`relayer fee ${eth(e.fee, 6)}`);
       if (e.x === 0n) vis.push(`2 nullifiers, ${e.leaves} new ${e.leaves === 1 ? "leaf" : "leaves"}`);
       const hid = e.x === 0n ? `amount ${HIDDEN}<br>sender &amp; receiver ${HIDDEN}` : e.x > 0n ? `which note it became ${HIDDEN}` : `which note paid ${HIDDEN}`;
-      return `<tr><td>#${int(e.block)}</td><td>${kind}</td><td>${vis.join('<br>')}</td><td>${hid}</td><td>${link(CHAINS[chain].tx + e.tx, short(e.tx, 8, 4))}</td></tr>`;
+      return `<tr><td>#${int(e.block)}</td><td>${kind}</td><td>${vis.join(" · ")}</td><td>${hid}</td><td>${link(CHAINS[chain].tx + e.tx, short(e.tx, 8, 4))}</td></tr>`;
     }));
     $(el).innerHTML = `<table class="feed"><thead><tr><th>Block</th><th>Kind</th><th>Visible</th><th>Hidden</th><th>Tx</th></tr></thead><tbody>${rows.join('')}</tbody></table><p class="note">Read from <code>Transact</code> logs ${src('chain')}</p>`;
   } catch (e) { fail(el, `the ${CHAINS[chain].name} pool feed`, e); }
