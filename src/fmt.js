@@ -33,4 +33,4 @@ export function src(kind, title = '') {
   const label = { chain: 'chain', api: 'indexer', match: 'chain ✓ indexer', differ: 'chain ≠ indexer', btc: 'bitcoin', scan: 'tacitscan' }[kind] || kind;
   return `<span class="src src-${kind}" title="${esc(title)}">${label}</span>`;
 }
-export const HIDDEN = '<span class="hid" title="A Pedersen commitment / encrypted memo: the chain stores it, nobody without the key can read it">hidden</span>';
+export const HIDDEN = '<span class="hid" title="A Pedersen commitment or encrypted memo: on chain, but unreadable without the key">withheld</span>';

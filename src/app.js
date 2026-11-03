@@ -65,7 +65,7 @@ async function pulse() {
     cell('Proven into the pool', c ? int(c.provenHeight) : '—', c && S.btcTip ? `${S.btcTip - c.provenHeight} blocks · ${st?.confirmations ?? 24} conf. required` : 'attestedReflectionTip()'),
     cell('Relay', relayState ? esc(relayState) : '—', S.relay ? `prover ${S.relay.proving ? 'on' : 'off'} · settling ${S.relay.settling ? 'on' : 'off'}` : '/confidential/relay', relayState === 'ok' || relayState === 'busy' ? 'ok' : relayState ? 'warn' : ''),
   ].join('');
-  $('asof').textContent = c ? `Ethereum block ${int(c.block)} · read ${new Date().toLocaleTimeString()}` : '';
+  $('asof').innerHTML = `<span class="live"></span>live${c ? ` · Ethereum block ${int(c.block)}<br>read ${new Date().toLocaleTimeString()}` : ''}`;
 }
 
 // ── the map: one note, two chains ───────────────────────────────────────────────────────────────────────────
@@ -191,7 +191,7 @@ async function poolLogs(chain, span) {
   // A few blocks behind the head, so an endpoint that is a block or two behind another still serves the range.
   const head = Number(BigInt(await rpc(chain, 'eth_blockNumber', []))) - 3;
   const out = [];
-  for (let to = head, tries = 0; out.length < 12 && tries < 10; tries++) {
+  for (let to = head, tries = 0; out.length < 8 && tries < 10; tries++) {
     const from = Math.max(0, to - span + 1);
     let logs;
     try { logs = await rpc(chain, 'eth_getLogs', [{ address: A.evmPool, topics: [TRANSACT], fromBlock: '0x' + from.toString(16), toBlock: '0x' + to.toString(16) }]); }
@@ -199,7 +199,7 @@ async function poolLogs(chain, span) {
     out.unshift(...logs);
     to = from - 1;
   }
-  return out.slice(-12).reverse().map((l) => {
+  return out.slice(-8).reverse().map((l) => {
     const x = I256(W(l.data, 5));
     return { block: Number(BigInt(l.blockNumber)), tx: l.transactionHash, x, recipient: '0x' + String(l.data).slice(2 + 4 * 64 + 24, 2 + 5 * 64), relayer: '0x' + String(l.data).slice(2 + 6 * 64 + 24, 2 + 7 * 64), fee: W(l.data, 7), leaves: [W(l.data, 0), W(l.data, 1)].filter((v) => v !== 0n).length };
   });

@@ -7,171 +7,217 @@
 <meta name="description" content="A live explorer for Tacit: Bitcoin envelopes, the confidential pools on Ethereum, Base and Robinhood Chain, the SP1 bridge between them, and an honest line between what's public and what's hidden.">
 <meta property="og:title" content="Tacit Glass">
 <meta property="og:description" content="Bitcoin envelopes, confidential pools and the bridge between them, on one page. Real mainnet data, read in your browser.">
-<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Ccircle cx='32' cy='32' r='32' fill='%23171717'/%3E%3Ccircle cx='32' cy='32' r='14' fill='none' stroke='%23ff9818' stroke-width='6'/%3E%3C/svg%3E">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' fill='%23F4EEE3'/%3E%3Crect x='10' y='22' width='44' height='9' fill='%23171717'/%3E%3Crect x='10' y='37' width='28' height='9' fill='%23171717'/%3E%3Crect x='44' y='37' width='10' height='9' fill='%23E07B00'/%3E%3C/svg%3E">
 <style>
-  /* Tokens forked from Tacit's own docs/dapp-template (MIT), so the page reads as part of the family. */
+  @font-face { font-family:"IBM Plex Mono"; font-weight:400; font-display:swap; src:url(fonts/ibm-plex-mono-latin-400-normal.woff2) format("woff2"); }
+  @font-face { font-family:"IBM Plex Mono"; font-weight:500; font-display:swap; src:url(fonts/ibm-plex-mono-latin-500-normal.woff2) format("woff2"); }
+  @font-face { font-family:"IBM Plex Mono"; font-weight:600; font-display:swap; src:url(fonts/ibm-plex-mono-latin-600-normal.woff2) format("woff2"); }
+  @font-face { font-family:"IBM Plex Serif"; font-weight:600; font-display:swap; src:url(fonts/ibm-plex-serif-latin-600-normal.woff2) format("woff2"); }
+  /* Tokens from DESIGN.md (linted with @google/design.md). A declassified audit file: paper, ink, redaction bars. */
   :root {
-    --paper:#f4eee3; --card:#fffaf2; --field:#faf5eb; --ink:#171717; --muted:#7a7469; --line:#ddd5c8;
-    --orange:#ff9818; --btc:#c96f00; --evm:#5b5bd6; --green:#3b7a5e; --red:#b8341d;
-    --mono: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; --r:10px;
+    --paper:#F4EEE3; --paper-deep:#EAE2D3; --ink:#171717; --ink-soft:#5E584F; --rule:#CFC5B4;
+    --redaction:#171717; --on-redaction:#8A8276; --accent:#E07B00; --verified:#2F6B4F; --on-verified:#F4EEE3;
+    --btc:#B85F00; --evm:#4B4BC4; --alert:#A3301B;
+    --serif:"IBM Plex Serif", Georgia, serif; --mono:"IBM Plex Mono", ui-monospace, Menlo, Consolas, monospace;
   }
   @media (prefers-color-scheme: dark) {
-    :root:not([data-theme="light"]) { --paper:#100f0d; --card:#181613; --field:#1e1b17; --ink:#ece6da; --muted:#8f887c; --line:#2e2a24; --btc:#ffad4d; --evm:#9a9aff; --green:#5fae8a; --red:#e07a63; }
+    :root:not([data-theme="light"]) { --paper:#14120F; --paper-deep:#1D1A16; --ink:#ECE6DA; --ink-soft:#A39B8E; --rule:#36312A; --redaction:#ECE6DA; --on-redaction:#6E675C; --accent:#FF9818; --verified:#4E9E78; --on-verified:#14120F; --btc:#FFAD4D; --evm:#9A9AFF; --alert:#E07A63; }
   }
-  :root[data-theme="dark"] { --paper:#100f0d; --card:#181613; --field:#1e1b17; --ink:#ece6da; --muted:#8f887c; --line:#2e2a24; --btc:#ffad4d; --evm:#9a9aff; --green:#5fae8a; --red:#e07a63; }
+  :root[data-theme="dark"] { --paper:#14120F; --paper-deep:#1D1A16; --ink:#ECE6DA; --ink-soft:#A39B8E; --rule:#36312A; --redaction:#ECE6DA; --on-redaction:#6E675C; --accent:#FF9818; --verified:#4E9E78; --on-verified:#14120F; --btc:#FFAD4D; --evm:#9A9AFF; --alert:#E07A63; }
+
   * { box-sizing:border-box; }
   html,body { margin:0; }
-  body { background:var(--paper); color:var(--ink); font:13px/1.6 var(--mono); padding:0 16px 80px; }
-  a { color:inherit; text-decoration-color:var(--orange); text-underline-offset:2px; }
-  a.xns { color:var(--evm); font-weight:600; }
+  body { background:var(--paper); color:var(--ink); font:400 13px/20px var(--mono); padding:0 16px 80px; font-variant-numeric:tabular-nums; }
+  a { color:inherit; text-decoration:underline; text-decoration-color:var(--accent); text-underline-offset:2px; }
+  a:hover { color:var(--accent); }
+  a.xns { font-weight:600; }
   .wrap { max-width:1120px; margin:0 auto; }
-  header { padding:26px 0 16px; border-bottom:1px dashed var(--line); display:flex; flex-wrap:wrap; gap:8px 18px; align-items:baseline; justify-content:space-between; }
-  header h1 { font-size:20px; margin:0; letter-spacing:-.01em; }
-  header h1 span { color:var(--orange); }
-  .tag { color:var(--muted); font-size:12px; max-width:62ch; }
-  #asof { color:var(--muted); font-size:11px; }
-  nav { display:flex; flex-wrap:wrap; gap:6px; padding:12px 0; border-bottom:1px dashed var(--line); position:sticky; top:0; background:var(--paper); z-index:5; }
-  nav a { font-size:11px; padding:2px 9px; border:1px solid var(--line); border-radius:999px; text-decoration:none; background:var(--card); }
-  section { margin-top:28px; scroll-margin-top:56px; }
-  h2 { font-size:11px; text-transform:uppercase; letter-spacing:.12em; color:var(--muted); margin:0 0 10px; font-weight:600; }
-  h2 b { color:var(--ink); font-size:15px; letter-spacing:0; text-transform:none; margin-right:8px; }
-  h3 { font-size:13px; margin:0 0 6px; }
-  h3 small, td small, .k small { color:var(--muted); font-weight:400; margin-left:6px; }
-  .k small { display:block; margin:0; font-size:11px; }
-  .card { background:var(--card); border:1px solid var(--line); border-radius:var(--r); padding:14px 16px; }
-  .grid2 { display:grid; grid-template-columns:1fr 1fr; gap:14px; }
-  @media (max-width:820px){ .grid2 { grid-template-columns:1fr; } }
-  .row { display:flex; justify-content:space-between; gap:12px; padding:6px 0; border-bottom:1px dashed var(--line); }
+  small { color:var(--ink-soft); }
+
+  /* header: the file's cover line */
+  header { padding:28px 0 14px; display:flex; flex-wrap:wrap; gap:10px 24px; align-items:flex-end; justify-content:space-between; border-bottom:2px solid var(--ink); }
+  .file { font:500 10.5px/14px var(--mono); letter-spacing:.1em; text-transform:uppercase; color:var(--ink-soft); margin-bottom:6px; }
+  header h1 { font:600 30px/36px var(--serif); letter-spacing:-.01em; margin:0; }
+  .tag { color:var(--ink-soft); max-width:64ch; margin-top:6px; }
+  #asof { font:500 10.5px/14px var(--mono); letter-spacing:.06em; text-transform:uppercase; color:var(--ink-soft); text-align:right; }
+  .live { display:inline-block; width:8px; height:8px; background:var(--accent); margin-right:6px; vertical-align:0; animation:blink 2s steps(2,start) infinite; }
+  @keyframes blink { to { opacity:.25; } }
+  @media (prefers-reduced-motion: reduce) { .live { animation:none; } }
+  nav { display:flex; flex-wrap:wrap; gap:4px 18px; padding:10px 0; border-bottom:1px solid var(--rule); position:sticky; top:0; background:var(--paper); z-index:5; }
+  nav a { font:500 10.5px/16px var(--mono); letter-spacing:.08em; text-transform:uppercase; text-decoration:none; color:var(--ink-soft); }
+  nav a:hover { color:var(--ink); }
+  nav a b { color:var(--ink); font-weight:600; margin-right:4px; }
+
+  /* sections: numbered like a report */
+  section { margin-top:36px; scroll-margin-top:52px; }
+  h2 { font:600 20px/26px var(--serif); margin:0 0 4px; padding-top:14px; border-top:1px solid var(--ink); display:flex; flex-wrap:wrap; align-items:baseline; gap:4px 12px; }
+  h2 .no { font:600 12px/16px var(--mono); color:var(--ink-soft); min-width:2.2em; }
+  h2 small { font:400 12px/16px var(--mono); color:var(--ink-soft); }
+  h3 { font:600 10.5px/14px var(--mono); letter-spacing:.1em; text-transform:uppercase; margin:0 0 6px; color:var(--ink); }
+  h3 small { font-weight:400; letter-spacing:.04em; text-transform:none; margin-left:6px; }
+  .card { padding:14px 0 0; }
+  .grid2 { display:grid; grid-template-columns:1fr 1fr; gap:0 40px; }
+  .grid2 > * + * { }
+  @media (max-width:820px) { .grid2 { grid-template-columns:1fr; } }
+
+  /* rows and tables: hairline ledger */
+  .row { display:flex; justify-content:space-between; gap:12px; padding:5px 0; border-bottom:1px solid var(--rule); }
   .row:last-child { border-bottom:0; }
-  .row .k { color:var(--muted); }
+  .row .k { color:var(--ink-soft); }
+  .k small { display:block; font-size:11px; line-height:15px; }
   .row .v { text-align:right; word-break:break-word; }
-  .num { font-variant-numeric:tabular-nums; }
-  code { font-size:11.5px; background:var(--field); padding:1px 5px; border-radius:4px; }
+  code { font:inherit; font-size:12px; color:var(--ink-soft); }
   table { width:100%; border-collapse:collapse; }
-  th,td { text-align:left; padding:7px 8px 7px 0; border-bottom:1px dashed var(--line); vertical-align:top; }
-  th { color:var(--muted); font-weight:600; font-size:10.5px; text-transform:uppercase; letter-spacing:.08em; }
+  th, td { text-align:left; padding:5px 10px 5px 0; border-bottom:1px solid var(--rule); vertical-align:top; }
+  th { font:500 10px/14px var(--mono); letter-spacing:.1em; text-transform:uppercase; color:var(--ink-soft); border-bottom:1px solid var(--ink); }
   .tablewrap { overflow-x:auto; }
-  .feed td { font-size:12px; }
-  .note { color:var(--muted); font-size:11.5px; margin:10px 0 0; }
-  .err { color:var(--red); font-size:12px; }
-  .src { display:inline-block; font-size:9.5px; padding:0 5px; border-radius:3px; border:1px solid var(--line); color:var(--muted); vertical-align:1px; white-space:nowrap; }
-  .src-chain { border-color:var(--green); color:var(--green); }
-  .src-match { border-color:var(--green); color:var(--paper); background:var(--green); }
-  .src-differ { border-color:var(--red); color:var(--red); }
-  .src-btc { border-color:var(--btc); color:var(--btc); }
-  .hid { display:inline-block; font-size:10.5px; padding:0 6px; border-radius:3px; background:var(--ink); color:var(--paper); letter-spacing:.04em; }
-  .hid::before { content:'● '; color:var(--orange); }
-  /* pulse */
-  #pulse { display:grid; grid-template-columns:repeat(4,1fr); gap:10px; margin-top:16px; }
-  @media (max-width:820px){ #pulse { grid-template-columns:1fr 1fr; } }
-  .cell { background:var(--card); border:1px solid var(--line); border-radius:var(--r); padding:10px 12px; display:flex; flex-direction:column; }
-  .cell .lbl { font-size:10.5px; text-transform:uppercase; letter-spacing:.08em; color:var(--muted); }
-  .cell b { font-size:20px; margin:2px 0; }
-  .cell .sub { font-size:11px; color:var(--muted); }
-  .cell.ok { border-color:var(--green); } .cell.warn { border-color:var(--orange); }
-  /* map */
-  #map { display:grid; grid-template-columns:1fr 1.15fr 1fr; gap:0; border:1px solid var(--line); border-radius:var(--r); overflow:hidden; }
-  @media (max-width:820px){ #map { grid-template-columns:1fr; } }
-  .lane { padding:14px 16px; background:var(--card); }
-  .lane p { color:var(--muted); font-size:12px; margin:0 0 8px; }
-  .lane.btc { border-top:4px solid var(--btc); }
-  .lane.evm { border-top:4px solid var(--evm); }
-  .lane.bridge { border-top:4px solid var(--orange); background:var(--field); border-left:1px dashed var(--line); border-right:1px dashed var(--line); }
-  .arrow { font-size:11px; color:var(--orange); margin:6px 0 2px; }
-  .big .row b { font-size:15px; }
-  /* privacy */
-  .pv td:first-child { font-weight:600; width:18%; }
-  .pv td:nth-child(3) { background:color-mix(in srgb, var(--ink) 4%, transparent); }
-  .pvbox { margin:12px 0 0; padding:10px 12px; border-left:3px solid var(--orange); background:var(--field); font-size:12px; }
-  /* lookup */
-  form { display:flex; gap:8px; }
-  input { flex:1; min-width:0; font:inherit; padding:10px 12px; border:1px solid var(--line); border-radius:var(--r); background:var(--field); color:var(--ink); }
-  button { font:inherit; padding:10px 16px; border:0; border-radius:var(--r); background:var(--ink); color:var(--paper); cursor:pointer; }
-  .tries { margin-top:8px; display:flex; flex-wrap:wrap; gap:6px; }
-  .tries button { padding:2px 9px; font-size:11px; background:var(--card); color:var(--ink); border:1px solid var(--line); border-radius:999px; }
-  #lookup-out { margin-top:12px; }
-  button.lk { padding:0 4px; margin-left:3px; font-size:11px; background:transparent; color:var(--muted); border:1px solid var(--line); border-radius:4px; }
-  button.lk:hover { color:var(--ink); border-color:var(--orange); }
-  /* Phones: every table becomes a stack of labelled rows instead of a squeezed grid. */
+  .feed td { font-size:12px; line-height:18px; }
+  .note { color:var(--ink-soft); font-size:11px; line-height:16px; margin:10px 0 0; }
+  .err { color:var(--alert); }
+  p.err { font-size:12px; }
+
+  /* source notes: footnotes, not badges */
+  .src { font:600 9.5px/12px var(--mono); letter-spacing:.08em; text-transform:uppercase; color:var(--ink-soft); white-space:nowrap; margin-left:4px; }
+  .src-match { background:var(--verified); color:var(--on-verified); padding:1px 4px; border-radius:2px; }
+  .src-differ { color:var(--alert); }
+  /* redaction: the protocol's withheld values, drawn where they would sit */
+  .hid { display:inline-block; min-width:7.5ch; padding:0 6px; background:var(--redaction); color:var(--on-redaction); font:600 9.5px/16px var(--mono); letter-spacing:.08em; text-transform:uppercase; vertical-align:1px; user-select:none; }
+
+  /* §1 pulse: four figures in a ruled strip */
+  #pulse { display:grid; grid-template-columns:repeat(4,1fr); border-bottom:1px solid var(--rule); margin-top:6px; }
+  @media (max-width:820px) { #pulse { grid-template-columns:1fr 1fr; } }
+  .cell { padding:12px 14px 12px 0; display:flex; flex-direction:column; }
+  .cell + .cell { padding-left:14px; border-left:1px solid var(--rule); }
+  @media (max-width:820px) { .cell:nth-child(3) { padding-left:0; border-left:0; } .cell:nth-child(n+3) { border-top:1px solid var(--rule); } }
+  .cell .lbl { font:500 10.5px/14px var(--mono); letter-spacing:.1em; text-transform:uppercase; color:var(--ink-soft); }
+  .cell b { font:500 24px/30px var(--mono); margin:4px 0 2px; }
+  .cell b a { text-decoration-thickness:1px; }
+  .cell .sub { font-size:11px; color:var(--ink-soft); }
+  .cell.warn b { color:var(--alert); }
+
+  /* the finding */
+  #headline { display:flex; flex-wrap:wrap; align-items:baseline; gap:6px 16px; margin-top:16px; padding:14px 18px; background:var(--ink); color:var(--paper); text-decoration:none; }
+  #headline .hl-k { font:600 10px/14px var(--mono); letter-spacing:.12em; text-transform:uppercase; color:var(--accent); }
+  #headline-t { flex:1; min-width:240px; font-size:13.5px; line-height:21px; }
+  #headline-t b { color:var(--accent); font-weight:600; }
+  #headline .hl-go { font-size:11px; color:var(--on-redaction); }
+  #headline:hover .hl-go { color:var(--accent); }
+
+  /* map: three columns, each headed by its chain rule */
+  #map { display:grid; grid-template-columns:1fr 1.1fr 1fr; gap:0 28px; margin-top:12px; }
+  @media (max-width:820px) { #map { grid-template-columns:1fr; gap:22px; } }
+  .lane { padding-top:10px; border-top:3px solid var(--ink); }
+  .lane.btc { border-top-color:var(--btc); }
+  .lane.evm { border-top-color:var(--evm); }
+  .lane.bridge { border-top-color:var(--ink-soft); }
+  .lane h3 small { display:inline; }
+  .lane p { color:var(--ink-soft); font-size:12px; line-height:18px; margin:0 0 8px; }
+  .arrow { font:500 10.5px/14px var(--mono); letter-spacing:.04em; color:var(--ink-soft); margin:10px 0 2px; }
+  .big .row b { font-weight:600; }
+  .chaincol { border-top:3px solid var(--ink); padding-top:10px; }
+  .chaincol.btc { border-top-color:var(--btc); }
+  .chaincol.evm { border-top-color:var(--evm); }
+
+  /* envelopes */
+  .compact td { padding:4px 10px 4px 0; vertical-align:baseline; }
+  .compact tr.env td:first-child { width:84px; }
+  .kind { font:600 9.5px/12px var(--mono); letter-spacing:.1em; text-transform:uppercase; color:var(--ink); }
+  .kind::before { content:''; display:inline-block; width:6px; height:6px; margin-right:6px; background:var(--btc); vertical-align:1px; }
+  details.older { margin-top:6px; }
+  details.older summary { cursor:pointer; color:var(--ink-soft); font-size:11.5px; padding:6px 0; }
+  table.legend { margin-top:14px; font-size:11.5px; }
+  table.legend td { padding:4px 10px 4px 0; color:var(--ink-soft); }
+  table.legend td:first-child { width:84px; }
+
+  /* §5 privacy table */
+  .pv td:first-child { font-weight:600; width:20%; }
+  .pvbox { margin:12px 0 0; padding:10px 0 0; border-top:1px solid var(--ink); font-size:12px; line-height:18px; }
+
+  /* §6 look up: the result is an exhibit */
+  form { display:flex; gap:0; border:1px solid var(--ink); }
+  input { flex:1; min-width:0; font:inherit; padding:11px 12px; border:0; background:var(--paper); color:var(--ink); outline:none; }
+  input:focus { background:var(--paper-deep); }
+  form > button { font:600 11px/14px var(--mono); letter-spacing:.1em; text-transform:uppercase; padding:0 18px; border:0; background:var(--ink); color:var(--paper); cursor:pointer; }
+  .tries { margin-top:8px; display:flex; flex-wrap:wrap; gap:4px 14px; font-size:11.5px; color:var(--ink-soft); }
+  .tries button { padding:0; font:inherit; background:none; border:0; color:var(--ink); text-decoration:underline; text-decoration-color:var(--accent); text-underline-offset:2px; cursor:pointer; }
+  #lookup-out { margin-top:14px; }
+  #lookup-out .card { background:var(--paper-deep); padding:14px 16px; position:relative; }
+  #lookup-out .card::before { content:'Exhibit'; display:block; font:600 9.5px/12px var(--mono); letter-spacing:.12em; text-transform:uppercase; color:var(--ink-soft); margin-bottom:6px; }
+  button.lk { padding:0 3px; margin-left:3px; font:inherit; font-size:11px; background:transparent; color:var(--ink-soft); border:0; cursor:pointer; }
+  button.lk:hover { color:var(--accent); }
+
+  footer { margin-top:44px; padding-top:14px; border-top:2px solid var(--ink); color:var(--ink-soft); font-size:11.5px; line-height:18px; }
+  footer p { margin:6px 0; }
+
+  /* Phones: tables become stacks of labelled rows; envelope rows stay one line */
   @media (max-width:640px) {
+    header h1 { font-size:26px; line-height:32px; }
+    #asof { text-align:left; }
+    #headline { flex-direction:column; gap:4px; }
+    #headline-t { min-width:0; }
+    .cell b { font-size:19px; line-height:26px; }
     table thead { display:none; }
-    table tr { display:block; padding:6px 0; border-bottom:1px dashed var(--line); }
+    table tr { display:block; padding:6px 0; border-bottom:1px solid var(--rule); }
     table td { display:block; border:0; padding:1px 0; }
     table td:empty { display:none; }
+    table td[data-label]::before { content:attr(data-label); display:block; font:500 9.5px/13px var(--mono); text-transform:uppercase; letter-spacing:.1em; color:var(--ink-soft); }
     table.compact tr { display:table-row; padding:0; }
-    table.compact td { display:table-cell; padding:5px 6px 5px 0; }
+    table.compact td { display:table-cell; padding:4px 6px 4px 0; border-bottom:1px solid var(--rule); }
     table.compact td[data-label]::before { content:none; }
     table.compact td:nth-child(4) { display:none; }
-    table td[data-label]::before { content:attr(data-label); display:block; font-size:10px; text-transform:uppercase; letter-spacing:.08em; color:var(--muted); }
     .row { flex-wrap:wrap; }
     .row .v { text-align:left; }
     .pv td:first-child { width:auto; }
-    #pulse .cell b { font-size:17px; }
   }
-  #headline { display:flex; flex-wrap:wrap; align-items:baseline; gap:6px 14px; margin-top:10px; padding:12px 16px; border-radius:var(--r); background:var(--ink); color:var(--paper); text-decoration:none; }
-  #headline .hl-k { font-size:10.5px; text-transform:uppercase; letter-spacing:.1em; color:var(--orange); }
-  #headline-t { flex:1; min-width:240px; font-size:13.5px; }
-  #headline-t b { color:var(--orange); }
-  #headline .hl-go { font-size:11px; opacity:.7; }
-  .compact td { padding:5px 8px 5px 0; vertical-align:middle; }
-  .compact tr.env td:first-child { width:78px; }
-  .kind.k-transfer { border-color:var(--evm); color:var(--evm); }
-  .kind.k-burn { border-color:var(--red); color:var(--red); }
-  .kind.k-mint, .kind.k-amm { border-color:var(--green); color:var(--green); }
-  details.older { margin-top:8px; }
-  details.older summary { cursor:pointer; color:var(--muted); font-size:12px; padding:6px 0; }
-  table.legend { margin-top:14px; font-size:11.5px; }
-  table.legend td { padding:5px 8px 5px 0; color:var(--muted); }
-  table.legend td:first-child { width:78px; }
-  footer { margin-top:40px; padding-top:16px; border-top:1px dashed var(--line); color:var(--muted); font-size:11.5px; }
-  footer p { margin:6px 0; }
-  .kind { display:inline-block; min-width:64px; font-size:10.5px; padding:0 6px; border-radius:3px; border:1px solid var(--btc); color:var(--btc); text-align:center; }
 </style>
 </head>
 <body>
 <div class="wrap">
   <header>
     <div>
-      <h1>tacit <span>glass</span></h1>
-      <div class="tag">Everything happening on Tacit, on one page: Bitcoin envelopes, the confidential pools on Ethereum, Base and Robinhood Chain, and the proofs that carry notes between them. Real mainnet data, read by your browser.</div>
+      <div class="file">File · Tacit protocol · Bitcoin ⇄ Ethereum · Base · Robinhood</div>
+      <h1>Tacit Glass</h1>
+      <div class="tag">Everything happening on Tacit, on one page, read live from mainnet by your browser. What the chains make public is printed. What the protocol keeps private is <span class="hid">withheld</span>.</div>
     </div>
-    <div id="asof"></div>
+    <div id="asof"><span class="live"></span>live</div>
   </header>
   <nav>
-    <a href="#overview">Overview</a><a href="#bitcoin">Bitcoin</a><a href="#ethereum">Ethereum · Base</a><a href="#bridge">Bridge</a><a href="#privacy-h">Privacy boundary</a><a href="#look">Look up</a><a href="#how">How it's read</a>
+    <a href="#overview"><b>§1</b>Pulse</a><a href="#bitcoin"><b>§2</b>Bitcoin</a><a href="#ethereum"><b>§3</b>Ethereum · Base</a><a href="#bridge"><b>§4</b>Bridge</a><a href="#privacy-h"><b>§5</b>Privacy</a><a href="#look"><b>§6</b>Look up</a><a href="#how">Method</a>
   </nav>
 
   <section id="overview">
-    <div id="pulse"><div class="cell"><span class="lbl">Loading</span><b>…</b></div></div>
-    <a id="headline" href="#linkcheck"><span class="hl-k">Privacy, measured</span><span id="headline-t">Reading the pools' own logs to see how much they really hide…</span><span class="hl-go">see the check ↓</span></a>
-    <h2 style="margin-top:22px"><b>One note, two chains</b>how value moves across Tacit</h2>
+    <h2><span class="no">§1</span>Pulse <small>are the two chains in step?</small></h2>
+    <div id="pulse"><div class="cell"><span class="lbl">Reading</span><b>…</b></div></div>
+    <a id="headline" href="#linkcheck"><span class="hl-k">Finding</span><span id="headline-t">Reading the pools' own logs to measure how much they really hide…</span><span class="hl-go">evidence §5 ↓</span></a>
     <div id="map"></div>
   </section>
 
   <section id="bitcoin">
-    <h2><b>Bitcoin side</b>envelopes in Taproot transactions</h2>
+    <h2><span class="no">§2</span>Bitcoin <small>envelopes inside ordinary Taproot transactions</small></h2>
     <div class="grid2">
       <div class="card"><h3>Recent envelopes</h3><div class="tablewrap" id="btc-feed">Reading…</div></div>
       <div>
-        <div class="card"><h3>Bitcoin-native AMM pool <small>tETH / TAC</small></h3><div id="btc-amm">Reading…</div></div>
-        <div class="card" style="margin-top:14px"><h3>Assets</h3><div class="tablewrap" id="btc-assets">Reading…</div></div>
+        <div class="card"><h3>Bitcoin-native AMM <small>tETH / TAC</small></h3><div id="btc-amm">Reading…</div></div>
+        <div class="card" style="margin-top:18px"><h3>Assets</h3><div class="tablewrap" id="btc-assets">Reading…</div></div>
       </div>
     </div>
   </section>
 
   <section id="ethereum">
-    <h2><b>Ethereum · Base · Robinhood</b>the confidential pools</h2>
+    <h2><span class="no">§3</span>Ethereum · Base · Robinhood <small>the confidential pools</small></h2>
     <div class="grid2">
       <div class="card"><h3>V1 ConfidentialPool <small>Ethereum</small></h3><div id="evm-v1">Reading…</div></div>
       <div class="card"><h3>cBTC · cUSD · TAC · wTAC</h3><div class="tablewrap" id="evm-assets">Reading…</div></div>
     </div>
-    <div class="card" style="margin-top:14px"><h3>ETH pool on every chain <small>TacitEvmPool, same address everywhere</small></h3><div class="tablewrap" id="evm-pools">Reading…</div></div>
-    <div class="card" style="margin-top:14px"><h3>Latest V1 pool activity <small>each row: what it revealed, what it didn't</small></h3><div class="tablewrap" id="evm-feed">Reading…</div></div>
-    <div class="card" style="margin-top:14px"><h3>Latest Base pool activity</h3><div class="tablewrap" id="base-feed">Reading…</div></div>
+    <div class="card" style="margin-top:18px"><h3>ETH pool on every chain <small>TacitEvmPool, one address everywhere</small></h3><div class="tablewrap" id="evm-pools">Reading…</div></div>
+    <div class="grid2" style="margin-top:18px">
+      <div class="card"><h3>Latest V1 pool activity</h3><div class="tablewrap" id="evm-feed">Reading…</div></div>
+      <div class="card"><h3>Latest Base pool activity</h3><div class="tablewrap" id="base-feed">Reading…</div></div>
+    </div>
   </section>
 
   <section id="bridge">
-    <h2><b>The bridge</b>header relay, proven roots, burns and mints in flight</h2>
+    <h2><span class="no">§4</span>Bridge <small>header relay, proven roots, burns and mints in flight</small></h2>
     <div class="grid2">
       <div class="card"><h3>What Ethereum knows about Bitcoin</h3><div id="bridge-relay">Reading…</div></div>
       <div class="card"><h3>Notes crossing</h3><div id="bridge-flow">Reading…</div></div>
@@ -179,9 +225,9 @@
   </section>
 
   <section id="privacy-h">
-    <h2><b>The privacy boundary</b>what an observer sees, and what stays hidden</h2>
+    <h2><span class="no">§5</span>Privacy <small>what an observer sees, what stays withheld, and how much that hides</small></h2>
     <div class="card tablewrap" id="privacy">Reading…</div>
-    <h2 id="linkcheck" style="margin-top:18px;scroll-margin-top:56px"><b>Linkability check</b>how many exits give themselves away by amount, measured live</h2>
+    <h3 id="linkcheck" style="margin-top:24px;scroll-margin-top:52px">Linkability check <small>exits that give themselves away by amount, measured from the pool's own logs</small></h3>
     <div class="grid2">
       <div class="card tablewrap" id="link-8453">Waiting for the page to load…</div>
       <div class="card tablewrap" id="link-1">Waiting for the page to load…</div>
@@ -189,13 +235,13 @@
   </section>
 
   <section id="look">
-    <h2><b>Look up your own footprint</b>tacit1 ID · Bitcoin txid · EVM address or tx · XNS name</h2>
+    <h2><span class="no">§6</span>Look up <small>a tacit1 ID, Bitcoin txid, EVM address or tx, or name@xns</small></h2>
     <div class="card">
-      <form id="lookup-form"><input id="q" placeholder="tacit1…, a Bitcoin txid, 0x… or name@xns" autocomplete="off" spellcheck="false"><button>Look up</button></form>
-      <div class="tries">try:
+      <form id="lookup-form"><input id="q" placeholder="tacit1…  ·  txid  ·  0x…  ·  name@xns" autocomplete="off" spellcheck="false"><button>Look up</button></form>
+      <div class="tries">try
         <button type="button" data-try="tacit1qqps86ymc78aa5v4q03hjlz70hrmq3a2xa4g8zg9exreekzye4h6yw4eqdvy85q973gqj85aa84d25wpex67fpal72yznlej9q85eez9ax0jsqlgn0rclhk3j5p7x7tute7u0vz84gmk4qufqhyc08xcgnxklg36hyl7pvk0">a tacit1 ID</button>
         <button type="button" data-try="e2d10be19c2b73b86e14be99dc237a3d999ba3dfbe6f3e3714590acee2ca481e">TAC genesis etch</button>
-        <button type="button" data-try="0x006CD14F36F65eCbB29b2519cCBe63A0DC8549F2">ops multisig</button>
+        <button type="button" data-try="ross@wei">ross@wei</button>
         <button type="button" data-try="0xc7bfc7cec938e59c5d256d1c44c2aea5269eb7c237ac018878f21b2a93c29a8f">a pool cross-out</button>
       </div>
       <div id="lookup-out"></div>
@@ -203,9 +249,9 @@
   </section>
 
   <footer id="how">
-    <p><b>How every number is read.</b> Tags beside a figure say where it came from. <span class="src src-chain">chain</span> your browser asked a public Ethereum, Base or Robinhood node directly. <span class="src src-btc">bitcoin</span> mempool.space / blockstream. <span class="src">indexer</span> Tacit's public API (api.tacit.finance). <span class="src src-match">chain ✓ indexer</span> both were read and agree. <span class="src src-differ">chain ≠ indexer</span> they disagree, usually because the indexer caches for a minute; the chain figure is the one to trust.</p>
-    <p>No wallet, no sign-in, no keys, nothing written to any chain. Refreshes every minute. Contract addresses from Tacit's <a href="https://github.com/src-company/tacit/blob/main/docs/DEPLOYMENTS.md" target="_blank" rel="noopener">DEPLOYMENTS.md</a>. Built on Tacit's MIT-licensed dapp template, stats reader and address kit.</p>
-    <p><a href="https://github.com/safwaankira/tacit-glass" target="_blank" rel="noopener">source</a> · Bitcoin-side decoding cross-referenced with <a href="https://www.tacitscan.io" target="_blank" rel="noopener">tacitscan.io</a></p>
+    <p><b>Method.</b> Every figure carries a source note. <span class="src">chain</span> your browser asked a public Ethereum, Base or Robinhood node directly. <span class="src">bitcoin</span> mempool.space or blockstream. <span class="src">indexer</span> Tacit's public API. <span class="src">tacitscan</span> tacitscan.io's indexer. <span class="src src-match">chain ✓ indexer</span> both were read and agree. <span class="src src-differ">chain ≠ indexer</span> they disagree; trust the chain. <span class="hid">withheld</span> a value the protocol keeps private, drawn where it would sit.</p>
+    <p>No wallet, no sign-in, no keys, nothing written to any chain. Refreshes every minute. Addresses from Tacit's <a href="https://github.com/src-company/tacit/blob/main/docs/DEPLOYMENTS.md" target="_blank" rel="noopener">DEPLOYMENTS.md</a>. Built on Tacit's MIT-licensed dapp template, stats reader and address kit; design specified in <a href="https://github.com/safwaankira/tacit-glass/blob/main/DESIGN.md" target="_blank" rel="noopener">DESIGN.md</a>.</p>
+    <p><a href="https://github.com/safwaankira/tacit-glass" target="_blank" rel="noopener">source</a> · Bitcoin decoding cross-referenced with <a href="https://www.tacitscan.io" target="_blank" rel="noopener">tacitscan.io</a></p>
   </footer>
 </div>
 <script type="module" src="src/app.js"></script>
