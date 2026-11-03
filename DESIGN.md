@@ -2,261 +2,265 @@
 version: alpha
 name: Tacit Glass
 description: |
-  A live explorer for Tacit, built on the PostHog design system from VoltAgent/awesome-design-md (MIT): warm cream canvas,
-  white hairline cards, IBM Plex Sans, olive inks, one yellow action, pastel callouts. PostHog's mascots, wordmark and
-  marketing patterns are left out; Tacit-specific pieces (withheld chips, source notes, chain rules) are added.
+  A live explorer for Tacit, built on the Linear design system from VoltAgent/awesome-design-md (MIT): a near-black canvas,
+  a four-step charcoal surface ladder with hairline borders, one lavender accent, Inter at 400–600. Dark is the default;
+  a light theme maps the same roles onto Linear's inverse tokens. Linear's wordmark and marketing patterns are not used.
 
 colors:
-  primary: "#f7a501"
-  primary-pressed: "#dd9001"
-  on-primary: "#23251d"
-  ink: "#23251d"
-  body: "#4d4f46"
-  mute: "#6c6e63"
-  hairline: "#bfc1b7"
-  hairline-soft: "#dcdfd2"
-  on-dark: "#ffffff"
-  canvas: "#eeefe9"
-  surface-soft: "#e5e7e0"
-  surface-card: "#ffffff"
-  surface-dark: "#23251d"
-  on-dark-mute: "#b6b7af"
-  link-teal: "#1078a3"
-  accent-red: "#cd4239"
-  accent-red-soft: "#f7d6d3"
-  accent-green: "#2c8c66"
-  accent-green-soft: "#d9eddf"
-  accent-green-ink: "#1d6a4b"
-  accent-blue-soft: "#dceaf6"
-  bitcoin: "#c66a00"
-  ethereum: "#5b5bd6"
+  primary: "#5e6ad2"
+  on-primary: "#ffffff"
+  primary-hover: "#828fff"
+  primary-focus: "#5e69d1"
+  ink: "#f7f8f8"
+  ink-muted: "#d0d6e0"
+  ink-subtle: "#8a8f98"
+  ink-tertiary: "#62666d"
+  canvas: "#010102"
+  surface-1: "#0f1011"
+  surface-2: "#141516"
+  surface-3: "#18191a"
+  hairline: "#23252a"
+  hairline-strong: "#34343a"
+  redaction: "#2b2d33"
+  semantic-success: "#27a644"
+  success-ink: "#4cc76a"
+  semantic-warning: "#f2994a"
+  warning-surface: "#211912"
+  bitcoin: "#f2994a"
+  ethereum: "#7a7fad"
+  inverse-canvas: "#ffffff"
+  inverse-surface-1: "#f5f6f6"
+  inverse-ink: "#000000"
 
 typography:
-  display-xl:
-    fontFamily: IBM Plex Sans
+  page-title:
+    fontFamily: Inter
     fontSize: 32px
-    fontWeight: 700
-    lineHeight: 1.3
-    letterSpacing: -0.5px
-  display-lg:
-    fontFamily: IBM Plex Sans
+    fontWeight: 600
+    lineHeight: 1.15
+    letterSpacing: -1.0px
+  section:
+    fontFamily: Inter
     fontSize: 22px
-    fontWeight: 700
-    lineHeight: 1.33
-    letterSpacing: -0.5px
-  heading-md:
-    fontFamily: IBM Plex Sans
-    fontSize: 16px
-    fontWeight: 700
-    lineHeight: 1.4
-  figure:
-    fontFamily: IBM Plex Sans
-    fontSize: 26px
-    fontWeight: 700
-    lineHeight: 1.2
-    fontFeature: '"tnum"'
-  body-md:
-    fontFamily: IBM Plex Sans
+    fontWeight: 600
+    lineHeight: 1.25
+    letterSpacing: -0.4px
+  card-title:
+    fontFamily: Inter
     fontSize: 15px
+    fontWeight: 600
+    lineHeight: 1.3
+    letterSpacing: -0.1px
+  figure:
+    fontFamily: Inter
+    fontSize: 28px
+    fontWeight: 600
+    lineHeight: 1.15
+    letterSpacing: -0.6px
+    fontFeature: '"tnum"'
+  body:
+    fontFamily: Inter
+    fontSize: 14px
     fontWeight: 400
     lineHeight: 1.5
-  body-xs:
-    fontFamily: IBM Plex Sans
-    fontSize: 14px
-    fontWeight: 500
-    lineHeight: 1.43
-  caption-sm:
-    fontFamily: IBM Plex Sans
-    fontSize: 13px
-    fontWeight: 500
-    lineHeight: 1.5
-  utility-xs:
-    fontFamily: IBM Plex Sans
+  caption:
+    fontFamily: Inter
     fontSize: 12px
-    fontWeight: 700
-    lineHeight: 1.33
-    letterSpacing: 0.04em
-  button-md:
-    fontFamily: IBM Plex Sans
-    fontSize: 14px
-    fontWeight: 700
-    lineHeight: 1.5
-  code-xs:
-    fontFamily: IBM Plex Mono
-    fontSize: 13px
+    fontWeight: 400
+    lineHeight: 1.4
+  eyebrow:
+    fontFamily: Inter
+    fontSize: 12px
     fontWeight: 500
-    lineHeight: 1.43
+    lineHeight: 1.3
+    letterSpacing: 0.4px
+  button:
+    fontFamily: Inter
+    fontSize: 14px
+    fontWeight: 500
+    lineHeight: 1.2
+  mono:
+    fontFamily: JetBrains Mono
+    fontSize: 12.5px
+    fontWeight: 400
+    lineHeight: 1.5
 
 rounded:
-  none: 0px
-  xs: 2px
-  sm: 4px
-  md: 6px
-  full: 9999px
+  xs: 4px
+  sm: 6px
+  md: 8px
+  lg: 12px
+  pill: 9999px
 
 spacing:
-  xs: 4px
-  sm: 8px
-  md: 12px
-  lg: 16px
-  xl: 24px
-  section: 56px
+  xxs: 4px
+  xs: 8px
+  sm: 12px
+  md: 16px
+  lg: 24px
+  xl: 32px
+  section: 64px
 
 components:
   page:
     backgroundColor: "{colors.canvas}"
-    textColor: "{colors.body}"
-    typography: "{typography.body-md}"
+    textColor: "{colors.ink-muted}"
+    typography: "{typography.body}"
   card:
-    backgroundColor: "{colors.surface-card}"
+    backgroundColor: "{colors.surface-1}"
     textColor: "{colors.ink}"
-    rounded: "{rounded.md}"
+    rounded: "{rounded.lg}"
     padding: 20px
   stat-tile:
-    backgroundColor: "{colors.surface-card}"
+    backgroundColor: "{colors.surface-1}"
     textColor: "{colors.ink}"
     typography: "{typography.figure}"
+    rounded: "{rounded.lg}"
+    padding: 18px
+  sub-nav:
+    backgroundColor: "{colors.surface-3}"
+    textColor: "{colors.ink-subtle}"
+    typography: "{typography.body}"
     rounded: "{rounded.md}"
-    padding: 16px
   button-primary:
     backgroundColor: "{colors.primary}"
     textColor: "{colors.on-primary}"
-    typography: "{typography.button-md}"
+    typography: "{typography.button}"
     rounded: "{rounded.md}"
-    padding: 8px 16px
-    height: 40px
-  button-primary-pressed:
-    backgroundColor: "{colors.primary-pressed}"
-    textColor: "{colors.on-primary}"
+    padding: 8px 14px
+  button-primary-hover:
+    backgroundColor: "{colors.primary-hover}"
+    textColor: "{colors.canvas}"
   button-secondary:
-    backgroundColor: "{colors.surface-soft}"
+    backgroundColor: "{colors.surface-2}"
     textColor: "{colors.ink}"
-    typography: "{typography.button-md}"
+    typography: "{typography.button}"
     rounded: "{rounded.md}"
-  search-input:
-    backgroundColor: "{colors.surface-card}"
+    padding: 8px 14px
+  text-input:
+    backgroundColor: "{colors.surface-1}"
     textColor: "{colors.ink}"
-    typography: "{typography.body-md}"
+    typography: "{typography.body}"
     rounded: "{rounded.md}"
-    height: 40px
-  sub-nav-strip:
-    backgroundColor: "{colors.surface-soft}"
-    textColor: "{colors.body}"
-    typography: "{typography.body-xs}"
-    height: 40px
-  inline-code:
-    backgroundColor: "{colors.surface-soft}"
-    textColor: "{colors.ink}"
-    typography: "{typography.code-xs}"
-    rounded: "{rounded.xs}"
-    padding: 1px 6px
-  withheld-chip:
-    backgroundColor: "{colors.surface-dark}"
-    textColor: "{colors.on-dark-mute}"
-    typography: "{typography.utility-xs}"
-    rounded: "{rounded.xs}"
-    padding: 1px 6px
-  finding-banner:
-    backgroundColor: "{colors.accent-red-soft}"
-    textColor: "{colors.ink}"
-    typography: "{typography.body-md}"
-    rounded: "{rounded.md}"
-    padding: 16px 20px
-  finding-mark:
-    textColor: "{colors.accent-red}"
-  live-dot:
-    backgroundColor: "{colors.accent-green}"
-    size: 8px
-  verified-badge:
-    backgroundColor: "{colors.accent-green-soft}"
-    textColor: "{colors.accent-green-ink}"
-    typography: "{typography.utility-xs}"
-    rounded: "{rounded.full}"
-    padding: 1px 8px
-  source-note:
-    textColor: "{colors.mute}"
-    typography: "{typography.utility-xs}"
-  info-banner:
-    backgroundColor: "{colors.accent-blue-soft}"
-    textColor: "{colors.ink}"
-    rounded: "{rounded.md}"
-    padding: 12px 16px
-  chain-rule-bitcoin:
-    backgroundColor: "{colors.bitcoin}"
-    height: 3px
-  chain-rule-ethereum:
-    backgroundColor: "{colors.ethereum}"
-    height: 3px
-  table-rule:
-    backgroundColor: "{colors.hairline-soft}"
-    height: 1px
+    padding: 8px 12px
+  focus-ring:
+    backgroundColor: "{colors.primary-focus}"
+    size: 2px
   card-border:
     backgroundColor: "{colors.hairline}"
     height: 1px
-  link-inline:
-    textColor: "{colors.link-teal}"
-  dark-panel:
-    backgroundColor: "{colors.surface-dark}"
-    textColor: "{colors.on-dark}"
-    rounded: "{rounded.md}"
+  card-border-strong:
+    backgroundColor: "{colors.hairline-strong}"
+    height: 1px
+  status-badge:
+    backgroundColor: "{colors.surface-2}"
+    textColor: "{colors.ink-muted}"
+    typography: "{typography.caption}"
+    rounded: "{rounded.pill}"
+    padding: 2px 8px
+  verified-badge:
+    backgroundColor: "{colors.surface-2}"
+    textColor: "{colors.success-ink}"
+    typography: "{typography.caption}"
+    rounded: "{rounded.pill}"
+    padding: 2px 8px
+  live-dot:
+    backgroundColor: "{colors.semantic-success}"
+    size: 8px
+  withheld-chip:
+    backgroundColor: "{colors.redaction}"
+    textColor: "{colors.ink-muted}"
+    typography: "{typography.eyebrow}"
+    rounded: "{rounded.xs}"
+    padding: 1px 6px
+  finding-panel:
+    backgroundColor: "{colors.warning-surface}"
+    textColor: "{colors.ink}"
+    typography: "{typography.body}"
+    rounded: "{rounded.lg}"
+    padding: 16px 20px
+  finding-badge:
+    backgroundColor: "{colors.warning-surface}"
+    textColor: "{colors.semantic-warning}"
+    typography: "{typography.eyebrow}"
+    rounded: "{rounded.pill}"
+  inline-id:
+    backgroundColor: "{colors.surface-2}"
+    textColor: "{colors.ink-muted}"
+    typography: "{typography.mono}"
+    rounded: "{rounded.xs}"
+    padding: 1px 6px
+  footnote:
+    textColor: "{colors.ink-tertiary}"
+    typography: "{typography.caption}"
+  chain-rule-bitcoin:
+    backgroundColor: "{colors.bitcoin}"
+    height: 2px
+  chain-rule-ethereum:
+    backgroundColor: "{colors.ethereum}"
+    height: 2px
+  light-page:
+    backgroundColor: "{colors.inverse-canvas}"
+    textColor: "{colors.inverse-ink}"
+  light-card:
+    backgroundColor: "{colors.inverse-surface-1}"
+    textColor: "{colors.inverse-ink}"
 ---
 
 ## Overview
 
-Tacit Glass is a product-analytics page for a privacy protocol, so it borrows its chrome from a product-analytics company: **PostHog's design system** (taken from VoltAgent/awesome-design-md, MIT). A warm cream canvas, white cards with thin olive borders, IBM Plex Sans at tight weights, olive-charcoal ink, and exactly one loud colour: the yellow action button. It reads like a friendly engineering dashboard, not a somber dark-tech terminal.
+Tacit Glass is a product dashboard for a privacy protocol, so it takes its chrome from **Linear's design system** (VoltAgent/awesome-design-md, MIT): software-craft documentation, dense and technical and quietly luxurious. A near-black canvas with a faint blue tint, data in charcoal panels lifted one step at a time, hairline borders, and a single lavender accent used only where something can be acted on.
 
-What it adds for Tacit: everything the protocol keeps private is shown as a small dark **withheld chip** in the exact cell where the value would sit, so the tables themselves show the shape of what's hidden. Every figure carries a quiet **source note** saying where it was read.
+Dark is the default. A light theme exists for daylight reading and printing; it maps the same roles onto Linear's inverse tokens and is chosen with a toggle in the header.
 
-PostHog's hedgehog mascots, wordmark, pricing patterns and marketing CTAs are deliberately not used. This page must never look like it is PostHog's.
+Tacit's own additions: everything the protocol keeps private appears as a **withheld chip** in the exact cell where the value would be, and every figure carries a quiet **footnote** saying where it was read. Linear's wordmark, product screenshots and marketing CTAs are not used; this page must never pass for Linear's.
 
 ## Colors
 
-- **Canvas** {colors.canvas} end to end; never pure white as the page.
-- **Surface card** {colors.surface-card} for every card and stat tile, with a 1px {colors.hairline} border.
-- **Surface soft** {colors.surface-soft} for the sub-nav strip, inline code chips and secondary buttons.
-- **Ink** {colors.ink} for figures and headings; **Body** {colors.body} for prose and table text; **Mute** {colors.mute} for labels and source notes.
-- **Primary** {colors.primary}, the yellow, is the Look up button. Nothing else.
-- **Accent green** {colors.accent-green} is the live dot in the header.
-- **Accent red soft** {colors.accent-red-soft} is the finding banner (a privacy warning), with key numbers in {colors.accent-red}. **Accent green soft** {colors.accent-green-soft} is the verified badge (chain and indexer agree), its text in {colors.accent-green-ink}: PostHog's {colors.accent-green} is too light for small text on that tint (3.4:1), so it is darkened to pass WCAG AA. **Accent blue soft** {colors.accent-blue-soft} is the info banner (method notes).
-- **Bitcoin** {colors.bitcoin} and **Ethereum** {colors.ethereum} appear only as 3px top rules on the cards that belong to each chain.
-- **Link teal** {colors.link-teal} for links.
+- **Canvas** {colors.canvas} is the page. Hierarchy comes from the surface ladder: **surface-1** {colors.surface-1} for cards and stat tiles, **surface-2** {colors.surface-2} for badges and inline ids, **surface-3** {colors.surface-3} for the sub-nav. Never skip a step.
+- **Hairline** {colors.hairline} borders every card; **hairline strong** {colors.hairline-strong} marks table headers and the input.
+- Text runs **ink** {colors.ink} (figures, headings) → **ink muted** {colors.ink-muted} (table text, prose) → **ink subtle** {colors.ink-subtle} (labels) → **ink tertiary** {colors.ink-tertiary} (footnotes).
+- **Primary** {colors.primary}, lavender, is the Look up button, links and the focus ring. Nothing decorative is lavender.
+- **Semantic success** {colors.semantic-success} is the live dot; **success ink** {colors.success-ink} is the text of the verified badge (chain and indexer agree).
+- **Semantic warning** {colors.semantic-warning} on **warning surface** {colors.warning-surface} is reserved for the one privacy finding. Linear's marketing palette has no warning colour; this one is added and kept to that single panel.
+- **Redaction** {colors.redaction} is the withheld chip.
+- **Bitcoin** {colors.bitcoin} and **Ethereum** {colors.ethereum} appear only as 2px top rules on the cards that belong to each chain.
 
 ## Typography
 
-IBM Plex Sans for every text role, hierarchy from weight more than size: 700 for headings and figures, 500–600 for labels, 400 for prose. Figures use tabular numerals. IBM Plex Mono only for hashes, addresses and ids inside {component.inline-code} chips. Uppercase (set in CSS, since the token format has no case property) only for eyebrows in {typography.utility-xs} and the withheld chip.
+Linear's custom faces aren't public, so the file's recommended substitutes are used: **Inter** at 400 / 500 / 600 (never 700+) and **JetBrains Mono** 400 for hashes, addresses and ids. Display sizes take negative tracking (-1px at 32px); the eyebrow takes +0.4px. Figures use tabular numerals. Mono only inside {component.inline-id}.
 
 ## Layout
 
-- 1200px max content, 24px gutters (16px on phones), sections every {spacing.section}.
-- A sticky {component.sub-nav-strip} with section anchors under the header.
-- Stat tiles in a 4-up grid (2-up on phones). Cards in a 2-up grid with 16px gutters (1-up on phones).
-- Inside cards, rows are separated by {colors.hairline-soft} rules; no zebra stripes.
+- 1200px max content, 24px gutters (16px on phones); {spacing.section} between sections.
+- Sticky sub-nav pill bar on surface-3 under the header.
+- Stat tiles 4-up (2-up on phones); cards 2-up with 16px gutters (1-up on phones); activity tables full width so each row is one line.
+- Inside cards, rows separate with hairlines; no zebra stripes.
 
 ## Elevation & Depth
 
-Flat. No shadows. Depth is the white card on cream with a hairline border, and the one dark panel (the relay trust note), PostHog's inverted code-block idea.
+The surface ladder plus hairlines, as Linear does it. No shadows, no gradients, no glows. A faint 1px top highlight on lifted cards.
 
 ## Shapes
 
-6px corners on cards, tiles, banners, inputs and buttons. 2px on inline chips. Fully round only for the verified badge.
+12px on cards and tiles, 8px on buttons and the input, 4px on chips, pills for badges.
 
 ## Components
 
-- **Stat tile**: eyebrow label, a big figure, a one-line sub-note.
-- **Finding banner**: a red-soft callout opening with ⚠️ and a bold label, stating the linkability check's most telling fact.
-- **Withheld chip**: dark, tiny, uppercase `withheld`, sized like a value, placed where the value would be.
-- **Verified badge**: green-soft pill `✓ chain = indexer`. Plain source notes are small uppercase mute text.
-- **Button primary**: the Look up button, yellow with olive text.
-- **Inline code**: hashes and addresses, Plex Mono on surface-soft.
-- **Info banner**: blue-soft, used once for the method note.
+- **Stat tile**: eyebrow label, figure, one-line sub-note.
+- **Finding panel**: warning surface, a pill badge "Privacy finding", one or two sentences with the key numbers in ink at 600.
+- **Withheld chip**: small, uppercase, on redaction grey, placed where the value would sit.
+- **Verified badge**: pill, success-green text on surface-2. Other footnotes are plain ink-tertiary captions.
+- **Button primary**: Look up, lavender with white text. On hover it lightens to {colors.primary-hover} and the text turns {colors.canvas}: Linear's white-on-hover-lavender is 2.9:1, below WCAG AA.
+- **Theme toggle**: a secondary button in the header, Dark / Light.
 
 ## Do's and Don'ts
 
-- **Do** keep yellow to the single Look up action.
-- **Do** put every card on white with a hairline border, on cream.
-- **Do** keep tables dense: one line per row where it fits.
-- **Don't** use PostHog's hedgehogs, logo, wordmark, product names or marketing copy.
-- **Don't** add shadows, gradients or a dark hero band.
-- **Don't** use the pastel callout colours as card backgrounds; they are for the one finding, the verified badge and the method note.
-- **Don't** colour figures to make them exciting; red is only the privacy finding, green only verification.
+- **Do** keep lavender to the Look up button, links and focus.
+- **Do** lift with the surface ladder, one step at a time.
+- **Do** keep tables to one line per row on desktop.
+- **Don't** use Linear's wordmark, logo, product names or marketing copy.
+- **Don't** add drop shadows, gradients, spotlight cards or glows.
+- **Don't** use weights above 600.
+- **Don't** let the warning colour leave the finding panel, or green leave the live dot and verified badge.
 - **Don't** repeat an explanation on every row; explain once in a legend.

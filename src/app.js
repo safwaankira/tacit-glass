@@ -347,6 +347,16 @@ const label = () => document.querySelectorAll('table').forEach((t) => {
   if (h.length) t.querySelectorAll('tbody tr').forEach((tr) => [...tr.children].forEach((td, i) => { if (!td.dataset.label && h[i]) td.dataset.label = h[i]; }));
 });
 new MutationObserver(label).observe(document.body, { childList: true, subtree: true });
+// Dark by default; the choice is remembered per browser when storage is available.
+const themeBtn = $('theme');
+const setThemeLabel = () => { themeBtn.textContent = document.documentElement.dataset.theme === 'light' ? 'Dark mode' : 'Light mode'; };
+themeBtn.addEventListener('click', () => {
+  const light = document.documentElement.dataset.theme !== 'light';
+  if (light) document.documentElement.dataset.theme = 'light'; else delete document.documentElement.dataset.theme;
+  try { localStorage.setItem('tg-theme', light ? 'light' : 'dark'); } catch { /* not remembered */ }
+  setThemeLabel();
+});
+setThemeLabel();
 round();
 linkability();
 setInterval(round, 60000);
