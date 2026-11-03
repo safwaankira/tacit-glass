@@ -46,16 +46,27 @@ export async function renderBitcoin(S) {
     }
   }
   const seen = new Set();
-  const list = rows.filter((r) => r.txid && !seen.has(r.txid) && seen.add(r.txid)).sort((a, b) => (b.pending - a.pending) || (b.t - a.t)).slice(0, 18);
-  if (list.length) {
-    $('btc-feed').innerHTML = `<table class="feed"><thead><tr><th>When</th><th>Envelope</th><th>Asset</th><th>Public</th><th>Hidden</th></tr></thead><tbody>${list.map((r) => {
-      const k = kindOf(r.op);
-      return `<tr><td>${r.pending ? '<b>mempool</b>' : ago(r.t)}<br><small>${r.height ? '#' + int(r.height) : ''}</small></td>
-        <td><span class="kind">${esc(k.k)}</span><br>${link(MEMPOOL + r.txid, short(r.txid, 6, 4))} <small>${esc(r.op || '')}</small></td>
-        <td>${esc(r.ticker || '—')}${r.assetId === TAC_ID ? ' <small>✓ TAC</small>' : ''}</td>
-        <td>${r.amount ? `burned <b>${units(r.amount, r.dec ?? 8, 4)}</b>` : esc(k.v)}</td><td>${k.h === '—' ? '—' : `${esc(k.h)} ${HIDDEN}`}</td></tr>`;
-    }).join('')}</tbody></table>
-    <p class="note">${feed.status === 'fulfilled' ? `Live from tacitscan's indexer ${src('scan')}` : 'tacitscan unavailable, '} with etches and burns from Tacit's indexer ${src('api')}.${stale ? ` ${int(stale)} mempool entr${stale === 1 ? 'y' : 'ies'} tacitscan still lists from hours ago (never confirmed) are left out.` : ''}</p>`;
+  const all = rows.filter((r) => r.txid && !seen.has(r.txid) && seen.add(r.txid)).sort((a, b) => (b.pending - a.pending) || (b.t - a.t));
+  // Recent activity first; older history (mostly the launch-week etches) folds away instead of passing for live activity.
+  const RECENT = 30 * 86400e3;
+  const recent = all.filter((r) => r.pending || Date.now() - r.t < RECENT).slice(0, 15);
+  const older = all.filter((r) => !recent.includes(r)).slice(0, 40);
+  const line = (r) => {
+    const k = kindOf(r.op);
+    return `<tr class="env"><td><span class="kind k-${esc(k.k)}">${esc(k.k)}</span></td>
+      <td><b>${esc(r.ticker || '—')}</b>${r.assetId === TAC_ID ? ' <small title="The canonical TAC asset id">✓</small>' : ''}${r.amount ? ` <small>burned ${units(r.amount, r.dec ?? 8, 2)}</small>` : ''}</td>
+      <td class="num">${r.pending ? '<b>mempool</b>' : ago(r.t)}</td>
+      <td class="num"><small>${r.height ? '#' + int(r.height) : ''}</small></td>
+      <td>${link(MEMPOOL + r.txid, short(r.txid, 6, 4))}</td></tr>`;
+  };
+  // One legend for the kinds on screen, instead of the same two sentences on every row.
+  const kinds = [...new Map([...recent, ...older].map((r) => { const k = kindOf(r.op); return [k.k, k]; })).values()];
+  if (all.length) {
+    $('btc-feed').innerHTML = `
+      ${recent.length ? `<table class="feed compact"><tbody>${recent.map(line).join('')}</tbody></table>` : '<p class="note">No envelopes in the last 30 days in the feeds read.</p>'}
+      ${older.length ? `<details class="older"><summary>Older history · ${int(older.length)} envelopes</summary><table class="feed compact"><tbody>${older.map(line).join('')}</tbody></table></details>` : ''}
+      <table class="legend"><thead><tr><th>Kind</th><th>Anyone sees</th><th>Stays hidden</th></tr></thead><tbody>${kinds.map((k) => `<tr><td><span class="kind k-${esc(k.k)}">${esc(k.k)}</span></td><td>${esc(k.v)}</td><td>${k.h === '—' ? '—' : `${esc(k.h)} ${HIDDEN}`}</td></tr>`).join('')}</tbody></table>
+      <p class="note">${feed.status === 'fulfilled' ? `Live from tacitscan's indexer ${src('scan')}` : 'tacitscan unavailable, '} with etches and burns from Tacit's indexer ${src('api')}.${stale ? ` ${int(stale)} mempool entr${stale === 1 ? 'y' : 'ies'} tacitscan still lists from hours ago (never confirmed) ${stale === 1 ? 'is' : 'are'} left out.` : ''}</p>`;
   } else $('btc-feed').innerHTML = `<p class="err">Couldn't read envelope activity right now.</p>`;
 
   // ── assets ──
@@ -63,11 +74,11 @@ export async function renderBitcoin(S) {
     const all = assets.value.assets || [];
     const tickers = new Map();
     for (const a of all) tickers.set(a.ticker, (tickers.get(a.ticker) || 0) + 1);
-    const top = [...all].sort((a, b) => (b.holder_count - a.holder_count) || (b.transfer_count - a.transfer_count)).slice(0, 10);
+    const top = [...all].sort((a, b) => (b.holder_count - a.holder_count) || (b.transfer_count - a.transfer_count)).slice(0, 8);
     const transfers = all.reduce((s, a) => s + (a.transfer_count || 0), 0);
     S.btcAssets = { count: all.length, transfers, tac: all.find((a) => a.asset_id === TAC_ID) };
     $('btc-assets').innerHTML = `<table><thead><tr><th>Asset</th><th>Holders</th><th>Transfers</th><th>Supply</th></tr></thead><tbody>${top.map((a) => `
-      <tr><td>${link('https://tacitscan.io/assets/' + a.asset_id, a.ticker)}${a.verified ? ' <small>verified</small>' : tickers.get(a.ticker) > 1 ? ' <small class="err" title="Another asset uses the same ticker: check the id">same ticker as another</small>' : ''}<br><small><code>${short(a.asset_id, 8, 6)}</code></small></td>
+      <tr><td>${link('https://tacitscan.io/assets/' + a.asset_id, a.ticker)}${a.verified ? ' <small>✓ verified</small>' : tickers.get(a.ticker) > 1 ? ' <small class="err" title="Another asset uses the same ticker: check the id ${esc(a.asset_id)}">⚠ dup ticker</small>' : ''}</td>
       <td class="num">${int(a.holder_count)}</td><td class="num">${int(a.transfer_count)}</td>
       <td>${a.attestation?.supply ? `${units(a.attestation.supply, a.decimals, 2)} <small>disclosed</small>` : `${HIDDEN}`}</td></tr>`).join('')}</tbody></table>
       <p class="note">${int(all.length)} assets etched, ${int(transfers)} confidential transfers in all ${src('api', 'api.tacit.finance /assets')}. Anyone can etch any ticker, so ${int([...tickers.values()].filter((n) => n > 1).length)} tickers are shared by more than one asset: the asset id is what's real.</p>`;

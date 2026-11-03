@@ -14,11 +14,24 @@ async function linkability() {
     try {
       LINK[chain] = await analyze(chain, (p) => { el.innerHTML = `<p class="note">Reading ${CHAINS[chain].name} pool logs… ${Math.round(p * 100)}%</p>`; });
       el.innerHTML = `<h3>${CHAINS[chain].name} ETH pool</h3>` + renderLink(LINK[chain]);
+      headline();
     } catch (e) { el.innerHTML = `<p class="err">Couldn't read ${CHAINS[chain].name} pool logs (${esc(e.message || e)}). Public RPCs cap log queries; reload to retry.</p>`; }
   }));
 }
 
 const $ = (id) => document.getElementById(id);
+// The page's lead: the most telling fact the linkability check found, in one line.
+function headline() {
+  const b = LINK[8453], e = LINK[1], el = document.getElementById('headline-t');
+  if (!el || (!b && !e)) return;
+  const bits = [];
+  if (b && b.exits) {
+    const top = [...b.recips.values()].sort((x, y) => y - x).slice(0, 3).reduce((t, n) => t + n, 0);
+    bits.push(`Base pool, last 6h: <b>${int(b.deposits)}</b> deposits, <b>${int(b.exits)}</b> withdrawals, <b>${int(b.transfers)}</b> private transfers. ${b.recips.size === 1 ? 'Every exit went to <b>a single address</b>.' : b.recips.size <= 3 ? `Every exit went to one of <b>${int(b.recips.size)}</b> addresses.` : `${Math.round((100 * top) / b.exits)}% of exits went to 3 addresses.`}`);
+  }
+  if (e && e.exits) bits.push(`Ethereum, since launch: <b>${Math.round((100 * e.unique.length) / e.exits)}%</b> of withdrawals match exactly one earlier deposit by amount.`);
+  el.innerHTML = bits.join(' ') || 'No withdrawals in the windows read.';
+}
 const S = {};                 // everything read this round, for cross-checks and the privacy panel
 const ETHERSCAN = CHAINS[1].addr, ETX = CHAINS[1].tx;
 const MEMPOOL = 'https://mempool.space/tx/', MBLOCK = 'https://mempool.space/block/';
